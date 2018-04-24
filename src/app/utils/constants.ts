@@ -4,11 +4,10 @@ export class Constants {
     public static country = {
         getStates: '/api/country/getStates?token={0}',
         getCities: '/api/country/getCities/{0}/{1}?token={2}'
-        
     };
     public static city = {
-        getDistricts: '/api/city/{0}',
-        getPoliticalPartyVotes: '/api/city/{0}/{1}'
+        getDistricts: '/api/city/getDistricts/{0}?token={1}',
+        getPoliticalPartyVotes: '/api/city/getPoliticalPartyVotes/{0}/{1}?token={2}'
     };
     public static candidate = {
         getTopCandidates: '/api/candidate/getTopCandidates/{0}/{1}/{2}/{3}',

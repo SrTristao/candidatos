@@ -6,63 +6,47 @@
     <div class="barra-vertical">
       <form>
         <mat-form-field>
-          <input type="text" placeholder="Estado" aria-label="Number" matInput [formControl]="myControl" [matAutocomplete]="auto">
-          <mat-autocomplete #auto="matAutocomplete">
-            <mat-option *ngFor="let option of filteredOptions | async" [value]="option">
-              {{ option }}
+          <input type="text" placeholder="Estado" aria-label="State" matInput [formControl]="formState" [matAutocomplete]="autoState">
+          <mat-autocomplete #autoState="matAutocomplete">
+            <mat-option *ngFor="let state of filteredOptionsState | async" [value]="state.name" (click)="carregarCidades(state)">
+              {{ state.name }}
             </mat-option>
           </mat-autocomplete>
         </mat-form-field>
         <mat-form-field>
-          <input type="text" placeholder="Cidade" aria-label="Number" matInput [formControl]="myControl" [matAutocomplete]="auto">
-          <mat-autocomplete #auto="matAutocomplete">
-            <mat-option *ngFor="let option of filteredOptions | async" [value]="option">
-              {{ option }}
+          <input type="text" placeholder="Cidade" aria-label="City" matInput [formControl]="formCity" [matAutocomplete]="autoCity">
+          <mat-autocomplete #autoCity="matAutocomplete">
+            <mat-option *ngFor="let city of filteredOptionsCity | async" [value]="city.name" (click)="carregarDadosCidade(city)">
+              {{ city.name }}
             </mat-option>
           </mat-autocomplete>
         </mat-form-field>
-        <mat-form-field>
-          <input type="text" placeholder="Bairro" aria-label="Number" matInput [formControl]="myControl" [matAutocomplete]="auto">
-          <mat-autocomplete #auto="matAutocomplete">
-            <mat-option *ngFor="let option of filteredOptions | async" [value]="option">
-              {{ option }}
-            </mat-option>
-          </mat-autocomplete>
-        </mat-form-field>
-        <mat-form-field>
-          <input type="text" placeholder="Colégio Eleitoral" aria-label="Number" matInput [formControl]="myControl" [matAutocomplete]="auto">
-          <mat-autocomplete #auto="matAutocomplete">
-            <mat-option *ngFor="let option of filteredOptions | async" [value]="option">
-              {{ option }}
-            </mat-option>
-          </mat-autocomplete>
-        </mat-form-field>
-      </form>
+      </form>      
       <div class="localidade-container">
-        <div class="localidade"> BRASIL </div>
-        <div class="breadcrumbs"> BRASIL </div>
+        <div class="localidade"> {{stateSelected}} </div>
+        <div class="breadcrumbs"> {{stateSelected}} </div>
       </div>
       
       <div class="totais">
-        <div class="boxes boxestados">
+        <div class="boxes boxestados" [hidden]="totalCities!==0">
           <div class="txt-boxes">Total de estados</div>
           <div class="num num-totalestados">27</div>
         </div>
-        <div class="boxes boxescidades">
+        <div class="boxes boxescidades" [hidden]="totalCities===0 || totalDistricts!==0">
           <div class="txt-boxes">Total de cidades</div>
-          <div class="num num-totalcidades">0</div>
+          <div class="num num-totalcidades">{{totalCities}}</div>
         </div>
-        <div class="boxes boxesbairros">
+        <div class="boxes boxesbairros" [hidden]="totalDistricts===0">
           <div class="txt-boxes">Total de bairros</div>
-          <div class="num num-totalbairros">0</div>
+          <div class="num num-totalbairros">{{totalDistricts}}</div>
         </div>
-        <div class="boxes boxescolegios">
+        <div class="boxes boxescolegios" [hidden]="totalSchools===0">
           <div class="txt-boxes">Total de colégios</div>
           <div class="num num-totalcolegios">0</div>
         </div>
-        <div class="boxes boxeseleitores">
+        <div class="boxes boxeseleitores" [hidden]="totalElectorate===0">
           <div class="txt-boxes">Total de eleitores</div>
-          <div class="num num-totaleleitores">143989464</div>
+          <div class="num num-totaleleitores">{{totalElectorate}}</div>
         </div>
         <div class="boxes boxesvotos">
           <mat-accordion>
@@ -71,8 +55,29 @@
               <mat-expansion-panel-header>
                 <mat-panel-title>
                   PARTIDOS
-                </mat-panel-title> 
+                </mat-panel-title>
               </mat-expansion-panel-header>
+              <div style="position: relative; width: 400px; height: 200px;" id="politicalParties" name="politicalParties"></div>
+              <mat-table #table [dataSource]="dataSourcePoliticalParties">
+                <ng-container matColumnDef="_id">
+                  <mat-header-cell *matHeaderCellDef> Partido </mat-header-cell>
+                  <mat-cell *matCellDef="let element"> {{element._id}} </mat-cell>
+                </ng-container>
+            
+                <ng-container matColumnDef="total">
+                  <mat-header-cell *matHeaderCellDef> Votos </mat-header-cell>
+                  <mat-cell *matCellDef="let element"> {{element.total}} </mat-cell>
+                </ng-container>
+            
+                <ng-container matColumnDef="percent">
+                  <mat-header-cell *matHeaderCellDef> % </mat-header-cell>
+                  <mat-cell *matCellDef="let element"> {{element.percent}} </mat-cell>
+                </ng-container>
+
+                <mat-header-row *matHeaderRowDef="displayedColumnsPoliticalParties"></mat-header-row>
+                <mat-row *matRowDef="let row; columns: displayedColumnsPoliticalParties;"></mat-row>
+              </mat-table>
+              <div class="nulos_brancos">Votos nulos: {{votosNulosPartidos}}</div>
             </mat-expansion-panel>
             <mat-expansion-panel (opened)="accordionPrefeitos = true"
             (closed)="accordionPrefeitos = false">

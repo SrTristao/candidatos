@@ -5,7 +5,7 @@ import {startWith} from 'rxjs/operators/startWith';
 import {map} from 'rxjs/operators/map';
 import { } from '@types/googlemaps';
 import {GoogleCharts} from 'google-charts';
-
+import { AuthService } from './services/auth.service';
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -26,6 +26,8 @@ export class AppComponent {
   ];
 
   filteredOptions: Observable<string[]>;
+
+  constructor(private authService: AuthService) {}
 
   ngOnInit() {
     this.filteredOptions = this.myControl.valueChanges
@@ -96,6 +98,11 @@ export class AppComponent {
           const column = new GoogleCharts.api.visualization.ColumnChart(document.getElementById('chart1'));
           column.draw(data, materialOptionsCHART);
       }
+
+      this.authService.login({"username": "dev.ironpatriot@infinitydata.com.br", "password": "Mudar123", "domain": "dev"}).subscribe(result => {
+        localStorage.setItem('token', result.token);
+        console.log(this.authService.getToken())
+      });
 
   }
 

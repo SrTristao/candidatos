@@ -1,10 +1,99 @@
-<form class="example-form">
-  <mat-form-field class="example-full-width">
-    <input type="text" placeholder="Pick one" aria-label="Number" matInput [formControl]="myControl" [matAutocomplete]="auto">
-    <mat-autocomplete #auto="matAutocomplete">
-      <mat-option *ngFor="let option of filteredOptions | async" [value]="option">
-        {{ option }}
-      </mat-option>
-    </mat-autocomplete>
-  </mat-form-field>
-</form>
+<div class="home-container">
+  <div class="barra">
+    <h2>Políticos</h2>
+  </div>
+  <div class="middle">
+    <div class="barra-vertical">
+      <form>
+        <mat-form-field>
+          <input type="text" placeholder="Estado" aria-label="Number" matInput [formControl]="myControl" [matAutocomplete]="auto">
+          <mat-autocomplete #auto="matAutocomplete">
+            <mat-option *ngFor="let option of filteredOptions | async" [value]="option">
+              {{ option }}
+            </mat-option>
+          </mat-autocomplete>
+        </mat-form-field>
+        <mat-form-field>
+          <input type="text" placeholder="Cidade" aria-label="Number" matInput [formControl]="myControl" [matAutocomplete]="auto">
+          <mat-autocomplete #auto="matAutocomplete">
+            <mat-option *ngFor="let option of filteredOptions | async" [value]="option">
+              {{ option }}
+            </mat-option>
+          </mat-autocomplete>
+        </mat-form-field>
+        <mat-form-field>
+          <input type="text" placeholder="Bairro" aria-label="Number" matInput [formControl]="myControl" [matAutocomplete]="auto">
+          <mat-autocomplete #auto="matAutocomplete">
+            <mat-option *ngFor="let option of filteredOptions | async" [value]="option">
+              {{ option }}
+            </mat-option>
+          </mat-autocomplete>
+        </mat-form-field>
+        <mat-form-field>
+          <input type="text" placeholder="Colégio Eleitoral" aria-label="Number" matInput [formControl]="myControl" [matAutocomplete]="auto">
+          <mat-autocomplete #auto="matAutocomplete">
+            <mat-option *ngFor="let option of filteredOptions | async" [value]="option">
+              {{ option }}
+            </mat-option>
+          </mat-autocomplete>
+        </mat-form-field>
+      </form>
+      <div class="localidade-container">
+        <div class="localidade"> BRASIL </div>
+        <div class="breadcrumbs"> BRASIL </div>
+      </div>
+      
+      <div class="totais">
+        <div class="boxes boxestados">
+          <div class="txt-boxes">Total de estados</div>
+          <div class="num num-totalestados">27</div>
+        </div>
+        <div class="boxes boxescidades">
+          <div class="txt-boxes">Total de cidades</div>
+          <div class="num num-totalcidades">0</div>
+        </div>
+        <div class="boxes boxesbairros">
+          <div class="txt-boxes">Total de bairros</div>
+          <div class="num num-totalbairros">0</div>
+        </div>
+        <div class="boxes boxescolegios">
+          <div class="txt-boxes">Total de colégios</div>
+          <div class="num num-totalcolegios">0</div>
+        </div>
+        <div class="boxes boxeseleitores">
+          <div class="txt-boxes">Total de eleitores</div>
+          <div class="num num-totaleleitores">143989464</div>
+        </div>
+        <div class="boxes boxesvotos">
+          <mat-accordion>
+            <mat-expansion-panel (opened)="accordionPartidos = true"
+            (closed)="accordionPartidos = false">
+              <mat-expansion-panel-header>
+                <mat-panel-title>
+                  PARTIDOS
+                </mat-panel-title> 
+              </mat-expansion-panel-header>
+            </mat-expansion-panel>
+            <mat-expansion-panel (opened)="accordionPrefeitos = true"
+            (closed)="accordionPrefeitos = false">
+              <mat-expansion-panel-header>
+                <mat-panel-title>
+                  PREFEITOS
+                </mat-panel-title> 
+              </mat-expansion-panel-header>
+            </mat-expansion-panel>
+            <mat-expansion-panel (opened)="accordionVereadores = true"
+            (closed)="accordionVereadores = false">
+              <mat-expansion-panel-header>
+                <mat-panel-title>
+                  VEREADORES
+                </mat-panel-title> 
+              </mat-expansion-panel-header>
+            </mat-expansion-panel>
+          </mat-accordion>
+        </div>
+      </div>
+    </div>
+    <div class="mapa" #gmap style="width: 100%; height: 100%"></div>
+  </div>
+</div>

@@ -15,7 +15,8 @@ import { MatButtonModule,
          MatGridListModule,
          MatProgressBarModule,
          MatProgressSpinnerModule,
-         MatAutocompleteModule
+         MatAutocompleteModule,
+         MatExpansionModule
         } from '@angular/material';
 
   const injectableComponents = [
@@ -33,7 +34,8 @@ import { MatButtonModule,
     MatGridListModule,
     MatProgressBarModule,
     MatProgressSpinnerModule,
-    MatAutocompleteModule
+    MatAutocompleteModule,
+    MatExpansionModule
   ]
   
 @NgModule({

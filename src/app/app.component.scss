@@ -1,4 +1,6 @@
 .home-container {
+    $color-default: #2b3e69;
+    $subcolor: #ffd12b;
     display: -webkit-box;
     display: -webkit-flex;
     display: -ms-flexbox;
@@ -16,10 +18,12 @@
         -webkit-flex: 0 0 auto;
         -ms-flex: 0 0 auto;
         flex: 0 0 auto;
-        background-color: #2b3e69;
+        background-color: $color-default;
         color: white;
-        padding: 10px;
-        font-size: 20px;
+        h2 {
+            padding: 10px;
+            margin: 0;
+        }
     }
     .middle {
         position: relative;
@@ -41,6 +45,89 @@
             padding-right: 1.22vw;
             padding-left: 1.22vw;
             box-shadow: 1px 1px 23px 0 rgba(0, 0, 0, .25);
+            overflow: scroll;
+            form {
+                position: relative;
+                margin-top: -0.35px;
+                margin-bottom: -0.35px;
+                padding-top: 1.5vw;
+                mat-form-field {
+                    width: 100%;
+                }
+            }
+            .localidade-container {
+                .localidade {
+                    display: -webkit-box;
+                    display: -webkit-flex;
+                    display: -ms-flexbox;
+                    display: flex;
+                    height: 6.5vw;
+                    padding-left: 3.5vw;
+                    -webkit-box-align: center;
+                    -webkit-align-items: center;
+                    -ms-flex-align: center;
+                    align-items: center;
+                    background-image: url(../assets/images/pin-localidade.png), -webkit-linear-gradient(0deg, $color-default, $subcolor 75%);
+                    background-image: url(../assets/images/pin-localidade.png), linear-gradient(90deg, $color-default, $subcolor 75%);
+                    background-position: 3% 50%, 0px 0px;
+                    background-size: auto 30%, auto;
+                    background-repeat: no-repeat, repeat;
+                    color: #fff;
+                    font-size: 1.6vw;
+                    line-height: 1.6vw;
+                    font-weight: 300;
+                    text-transform: uppercase;
+                }
+                .breadcrumbs {
+                    display: -webkit-box;
+                    display: -webkit-flex;
+                    display: -ms-flexbox;
+                    display: flex;
+                    min-height: 2.5vw;
+                    padding-right: 1.22vw;
+                    padding-left: 1.22vw;
+                    -webkit-box-pack: start;
+                    -webkit-justify-content: flex-start;
+                    -ms-flex-pack: start;
+                    justify-content: flex-start;
+                    -webkit-box-align: center;
+                    -webkit-align-items: center;
+                    -ms-flex-align: center;
+                    align-items: center;
+                    border-bottom: 1px solid #d8d6d6;
+                    background-color: #fff;
+                    color: #58595b;
+                    font-size: 0.9vw;
+                    line-height: 1vw;
+                    font-weight: 700;
+                    text-transform: uppercase;
+                }
+            }
+            .totais {
+                position: relative;
+                overflow: auto;
+                margin-top: 1vw;
+                margin-bottom: 1vw;
+                .boxes {
+                    overflow: hidden;
+                    border-bottom: 1px solid #d8d6d6;
+                    .txt-boxes {
+                        padding-top: 1.33982948vw;
+                        color: $color-default;
+                        font-size: 1.4vw;
+                        line-height: 1.4vw;
+                        font-weight: 500;
+                    }
+                    .num {
+                        padding-top: 0.73081608vw;
+                        padding-bottom: 1.03532278vw;
+                        color: #58595b;
+                        font-size: 2.5vw;
+                        line-height: 2.5vw;
+                        font-weight: 100;
+                    }
+                }
+            }
         }
         .map {
             position: relative;

@@ -13,3 +13,49 @@ body {
     background-size: auto;
     background-repeat: repeat;
 }
+
+/* Structure */
+.example-container {
+    display: flex;
+    flex-direction: column;
+    min-width: 300px;
+  }
+  
+  .example-header {
+    min-height: 64px;
+    padding: 8px 24px 0;
+  }
+  
+  .mat-form-field {
+    font-size: 14px;
+    width: 100%;
+  }
+  
+  .mat-table {
+    overflow: auto;
+  }
+
+  .example-icon {
+    padding: 0 14px;
+  }
+  
+  .example-spacer {
+    flex: 1 1 auto;
+  }
+
+  .icon-button {
+      cursor: pointer;
+  }
+
+  .example-tooltip-host {
+    display: inline-flex;
+    align-items: center;
+  }
+  
+  .example-select {
+    margin: 0 10px;
+  }
+
+.mat-expansion-panel-body {
+    padding: 0 !important;
+}

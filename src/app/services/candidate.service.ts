@@ -16,7 +16,7 @@ export class CandidateService {
     }
 
     getTopCandidates(param) : Observable<any>{
-        return this.httpService.get(this.url + this.stringFormat(this.candidate.getTopCandidates, param.anoEleicao, param.codigoCargo, param.numeroTurno, param.limite), {});
+        return this.httpService.get(this.url + this.stringFormat(this.candidate.getTopCandidates, param.anoEleicao, param.codigoCidade, param.codigoCargo, param.numeroTurno, param.limite, this.authService.getToken()), {});
     }
 
     getCandidateDetails(param) : Observable<any> {

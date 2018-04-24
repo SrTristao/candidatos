@@ -21,10 +21,25 @@
             </mat-option>
           </mat-autocomplete>
         </mat-form-field>
+        <mat-form-field>
+          <input type="text" placeholder="Bairro" aria-label="District" matInput [formControl]="formDistrict" [matAutocomplete]="autoDistrict">
+          <mat-autocomplete #autoDistrict="matAutocomplete">
+            <mat-option *ngFor="let district of filteredOptionsDistrict | async" [value]="district" (click)="carregarDadosBairro(district)">
+              {{ district }}
+            </mat-option>
+          </mat-autocomplete>
+        </mat-form-field>
+        <mat-form-field>
+          <input type="text" placeholder="Colégio Eleitoral" aria-label="School" matInput [formControl]="formsSchool" [matAutocomplete]="autoSchool">
+          <mat-autocomplete #autoSchool="matAutocomplete">
+            <mat-option>
+            </mat-option>
+          </mat-autocomplete>
+        </mat-form-field>
       </form>      
       <div class="localidade-container">
-        <div class="localidade"> {{stateSelected}} </div>
-        <div class="breadcrumbs"> {{stateSelected}} </div>
+        <div class="localidade"> {{localeSelected}} </div>
+        <div class="breadcrumbs"> {{stateSelected}} {{citySelected !== '' ? ' | ' + citySelected : ''}} {{districtSelected !== '' ? ' | ' + districtSelected : ''}} </div>
       </div>
       
       <div class="totais">
@@ -36,11 +51,11 @@
           <div class="txt-boxes">Total de cidades</div>
           <div class="num num-totalcidades">{{totalCities}}</div>
         </div>
-        <div class="boxes boxesbairros" [hidden]="totalDistricts===0">
+        <div class="boxes boxesbairros" [hidden]="totalDistricts===0 || districtSelected!==''">
           <div class="txt-boxes">Total de bairros</div>
           <div class="num num-totalbairros">{{totalDistricts}}</div>
         </div>
-        <div class="boxes boxescolegios" [hidden]="totalSchools===0">
+        <div class="boxes boxescolegios" [hidden]="districtSelected===''">
           <div class="txt-boxes">Total de colégios</div>
           <div class="num num-totalcolegios">0</div>
         </div>
@@ -48,7 +63,7 @@
           <div class="txt-boxes">Total de eleitores</div>
           <div class="num num-totaleleitores">{{totalElectorate}}</div>
         </div>
-        <div class="boxes boxesvotos">
+        <div class="boxes boxesvotos" [hidden]="citySelected === ''">
           <mat-accordion>
             <mat-expansion-panel (opened)="accordionPartidos = true"
             (closed)="accordionPartidos = false">
@@ -59,6 +74,10 @@
               </mat-expansion-panel-header>
               <div style="position: relative; width: 400px; height: 200px;" id="politicalParties" name="politicalParties"></div>
               <mat-table #table [dataSource]="dataSourcePoliticalParties">
+                <ng-container matColumnDef="index">
+                  <mat-header-cell *matHeaderCellDef> </mat-header-cell>
+                  <mat-cell *matCellDef="let element"> {{element.index}} </mat-cell>
+                </ng-container>
                 <ng-container matColumnDef="_id">
                   <mat-header-cell *matHeaderCellDef> Partido </mat-header-cell>
                   <mat-cell *matCellDef="let element"> {{element._id}} </mat-cell>
@@ -77,6 +96,7 @@
                 <mat-header-row *matHeaderRowDef="displayedColumnsPoliticalParties"></mat-header-row>
                 <mat-row *matRowDef="let row; columns: displayedColumnsPoliticalParties;"></mat-row>
               </mat-table>
+
               <div class="nulos_brancos">Votos nulos: {{votosNulosPartidos}}</div>
             </mat-expansion-panel>
             <mat-expansion-panel (opened)="accordionPrefeitos = true"
@@ -86,6 +106,40 @@
                   PREFEITOS
                 </mat-panel-title> 
               </mat-expansion-panel-header>
+              <div style="position: relative; width: 400px; height: 200px;" id="topMayor" name="topMayor"></div>
+              <mat-table #table [dataSource]="dataSourceMayor">
+                <ng-container matColumnDef="index">
+                  <mat-header-cell *matHeaderCellDef> </mat-header-cell>
+                  <mat-cell *matCellDef="let element"> {{element.index}} </mat-cell>
+                </ng-container>
+                <ng-container matColumnDef="nameExibition">
+                  <mat-header-cell *matHeaderCellDef [ngClass]="'customWithClass'"> Nome </mat-header-cell>
+                  <mat-cell *matCellDef="let element" [ngClass]="'customWithClass'"> {{element.electionInformation.nameExibition}} </mat-cell>
+                </ng-container>
+            
+                <ng-container matColumnDef="politicalParty">
+                  <mat-header-cell *matHeaderCellDef> Partido </mat-header-cell>
+                  <mat-cell *matCellDef="let element"> {{element.electionInformation.politicalParty.initials}} </mat-cell>
+                </ng-container>
+            
+                <ng-container matColumnDef="elected">
+                  <mat-header-cell *matHeaderCellDef> Eleito </mat-header-cell>
+                  <mat-cell *matCellDef="let element"> {{element.electionInformation.elected}} </mat-cell>
+                </ng-container>
+
+                <ng-container matColumnDef="totalVotes">
+                  <mat-header-cell *matHeaderCellDef> Votos </mat-header-cell>
+                  <mat-cell *matCellDef="let element"> {{element.totalVotes}} </mat-cell>
+                </ng-container>
+
+                <ng-container matColumnDef="perfil">
+                  <mat-header-cell *matHeaderCellDef> Perfil </mat-header-cell>
+                  <mat-cell *matCellDef="let element"> Ver </mat-cell>
+                </ng-container>
+
+                <mat-header-row *matHeaderRowDef="displayedColumnsMayor"></mat-header-row>
+                <mat-row *matRowDef="let row; columns: displayedColumnsMayor;"></mat-row>
+              </mat-table>
             </mat-expansion-panel>
             <mat-expansion-panel (opened)="accordionVereadores = true"
             (closed)="accordionVereadores = false">
@@ -94,7 +148,41 @@
                   VEREADORES
                 </mat-panel-title> 
               </mat-expansion-panel-header>
-              <div style="position: relative; width: 400px; height: 200px;" id="chart1" name="chart1">{{chart1}}</div>
+              <div style="position: relative; width: 400px; height: 200px;" id="topCandidate" name="topCandidate"></div>
+              <mat-table #table [dataSource]="dataSourceCandidate">
+                <ng-container matColumnDef="index">
+                  <mat-header-cell *matHeaderCellDef> </mat-header-cell>
+                  <mat-cell *matCellDef="let element"> {{element.index}} </mat-cell>
+                </ng-container>
+                <ng-container matColumnDef="nameExibition">
+                  <mat-header-cell *matHeaderCellDef [ngClass]="'customWithClass'"> Nome </mat-header-cell>
+                  <mat-cell *matCellDef="let element" [ngClass]="'customWithClass'"> {{element.electionInformation.nameExibition}} </mat-cell>
+                </ng-container>
+            
+                <ng-container matColumnDef="politicalParty">
+                  <mat-header-cell *matHeaderCellDef> Partido </mat-header-cell>
+                  <mat-cell *matCellDef="let element"> {{element.electionInformation.politicalParty.initials}} </mat-cell>
+                </ng-container>
+            
+                <ng-container matColumnDef="elected">
+                  <mat-header-cell *matHeaderCellDef> Eleito </mat-header-cell>
+                  <mat-cell *matCellDef="let element"> {{element.electionInformation.elected}} </mat-cell>
+                </ng-container>
+
+                <ng-container matColumnDef="totalVotes">
+                  <mat-header-cell *matHeaderCellDef> Votos </mat-header-cell>
+                  <mat-cell *matCellDef="let element"> {{element.totalVotes}} </mat-cell>
+                </ng-container>
+
+                <ng-container matColumnDef="perfil">
+                  <mat-header-cell *matHeaderCellDef> Perfil </mat-header-cell>
+                  <mat-cell *matCellDef="let element"> Ver </mat-cell>
+                </ng-container>
+
+                <mat-header-row *matHeaderRowDef="displayedColumnsCandidate"></mat-header-row>
+                <mat-row *matRowDef="let row; columns: displayedColumnsCandidate;"></mat-row>
+              </mat-table>
+
             </mat-expansion-panel>
           </mat-accordion>
         </div>

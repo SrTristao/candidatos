@@ -132,6 +132,24 @@
                             color: $color-default;
                             text-transform: uppercase;
                         }
+                        mat-header-row {
+                            background-color: $color-default;
+                            margin-top: 10px;
+                            padding: 0;
+                        }
+                        mat-row {
+                            padding: 0px;
+                        }
+                        mat-header-cell {
+                            color: white;
+                        }
+                        mat-cell, mat-header-cell {
+                            font-size: 0.8vw !important;
+                            text-align: center;
+                        }
+                        .customWithClass{
+                            flex: 0 0 100px;
+                         }
                     }
                 }
             }

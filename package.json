@@ -1,7 +1,8 @@
 {
   "name": "candidatos",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "license": "MIT",
+  "author": "João Alexandre Tristão de Almeida (Tristão)",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",

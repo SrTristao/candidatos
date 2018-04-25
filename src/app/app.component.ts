@@ -4,7 +4,7 @@ import { MatTableDataSource } from '@angular/material';
 import {Observable} from 'rxjs/Observable';
 import {startWith} from 'rxjs/operators/startWith';
 import {map} from 'rxjs/operators/map';
-import { } from '@types/googlemaps';
+// import { } from '@types/googlemaps';
 import { GoogleCharts } from 'google-charts';
 import { AuthService } from './services/auth.service';
 import { CountryService } from './services/country.service';
@@ -16,6 +16,7 @@ import { PoliticalParty } from './class/PoliticalParty';
 import { Candidate } from './class/Candidate';
 
 declare var MarkerClusterer:any;
+declare var google:any;
 
 @Component({
   selector: 'app-root',
@@ -64,11 +65,12 @@ export class AppComponent {
 
   //Maps
   @ViewChild('gmap') gmapElement: any;
-  map: google.maps.Map;
-  geocoder = new google.maps.Geocoder();
+  map: any;
+  geocoder: any;
   markers = [];
   locations = [];
   markerClusterer: any;
+  heatmap: any;
 
   //Charts
   votosPorPartidoChart = [];
@@ -91,7 +93,9 @@ export class AppComponent {
 
   ngOnInit() {
       this.resetVariables();
-
+      console.log(google);
+      this.map = google.maps.map;
+      this.geocoder = new google.maps.Geocoder();
       var mapProp = {
         center: new google.maps.LatLng(-14.235004,-51.92528),
         zoom: 3,
@@ -232,6 +236,7 @@ export class AppComponent {
   sairDetalhes() {
     document.getElementsByClassName('detalhe')[0].classList.add('fechado');
     this.mapMarker(this.localeMapCurrent);
+    this.heatmap.setMap(null);
   }
 
   private makeVotesMayorsTable(mayors): void {
@@ -263,8 +268,21 @@ export class AppComponent {
         localStorage.setItem('votosPorEscolasChart', JSON.stringify(this.votosPorEscolasChart));
         GoogleCharts.load(this.drawChartVotesSchool);
         this.mapMarkerClusterer(this.locations, labels);
+        this.setHeatMap(this.locations);
       }
     })
+  }
+
+  private setHeatMap(locations): void {
+    let locationsHeatMap = [];
+    locations.forEach(location => {
+      locationsHeatMap.push(new google.maps.LatLng(location.lat, location.lng));
+    })
+    this.heatmap = new google.maps.visualization.HeatmapLayer({
+      map: this.map,
+      data: locationsHeatMap
+    });
+    this.heatmap.set('radius', 23);
   }
 
   private makeVotesMayorsChart(obj): void {

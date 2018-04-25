@@ -3,7 +3,66 @@
     <h2>Políticos</h2>
   </div>
   <div class="middle">
-    <div class="barra-vertical">
+    <div class="detalhe fechado">
+      <div class="div-detalhes">
+        <div class="box-foto">
+          <img src="../assets/images/foto-candidato.PNG"/>
+        </div>
+        <div class="box-descricao">
+          <div class="display-name">
+            <span>{{candidateDetail.electionInformation.nameExibition}}</span> - <span>{{candidateDetail.electionInformation.candidateNumber}}</span>
+          </div>
+          <div class="display-legenda">
+            <span>{{candidateDetail.electionInformation.role.description}}</span> - <span>{{candidateDetail.electionInformation.politicalParty.initials}}</span>
+          </div>
+          <div class="other-text">
+            Nome: <span>{{candidateDetail.personalInformation.name}}</span>
+          </div>
+          <div class="other-text">
+            Partido: <span>{{candidateDetail.electionInformation.politicalParty.name}}</span>
+          </div>
+          <div class="other-text">
+            Votos: <span>{{candidateDetail.totalVotes}}</span>
+          </div>
+          <div class="other-text">
+            CPF: <span>{{candidateDetail.personalInformation.document}}</span>
+          </div>
+          <div class="other-text">
+            Profissão: <span>{{candidateDetail.personalInformation.occupation.description}}</span>
+          </div>
+        </div>
+        <div class="bt-sair" (click)="sairDetalhes()"></div>
+      </div>
+      <div class="div-votos">
+        <div class="tabela-escola">
+          <div class="txt-boxes colegio">Votos por colégio</div>
+          <div class="detalhe-grafico">
+              <div style="position: relative; width: 400px; height: 200px;" id="votesSchoolChart" name="votesSchoolChart"></div>
+          </div>
+          <div class="detalhe-tabela">
+              <mat-table #table [dataSource]="dataSourceSchools">
+                <ng-container matColumnDef="index">
+                  <mat-header-cell *matHeaderCellDef> </mat-header-cell>
+                  <mat-cell *matCellDef="let element"> {{element.index}} </mat-cell>
+                </ng-container>
+                <ng-container matColumnDef="colegio">
+                  <mat-header-cell *matHeaderCellDef [ngClass]="'schoolWidthClass'"> Colégio </mat-header-cell>
+                  <mat-cell *matCellDef="let element" [ngClass]="'schoolWidthClass withoutAlign'"> {{element._id.localName}} </mat-cell>
+                </ng-container>
+            
+                <ng-container matColumnDef="votos">
+                  <mat-header-cell *matHeaderCellDef> Votos </mat-header-cell>
+                  <mat-cell *matCellDef="let element"> {{element.total}} </mat-cell>
+                </ng-container>
+
+                <mat-header-row *matHeaderRowDef="displayedColumnsSchools"></mat-header-row>
+                <mat-row *matRowDef="let row; columns: displayedColumnsSchools;"></mat-row>
+              </mat-table>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="informations">
       <form>
         <mat-form-field>
           <input type="text" placeholder="Estado" aria-label="State" matInput [formControl]="formState" [matAutocomplete]="autoState">
@@ -124,7 +183,7 @@
             
                 <ng-container matColumnDef="elected">
                   <mat-header-cell *matHeaderCellDef> Eleito </mat-header-cell>
-                  <mat-cell *matCellDef="let element"> {{element.electionInformation.elected}} </mat-cell>
+                  <mat-cell *matCellDef="let element"> {{element.electionInformation.elected ? '✔' : '✗'}} </mat-cell>
                 </ng-container>
 
                 <ng-container matColumnDef="totalVotes">
@@ -134,7 +193,7 @@
 
                 <ng-container matColumnDef="perfil">
                   <mat-header-cell *matHeaderCellDef> Perfil </mat-header-cell>
-                  <mat-cell *matCellDef="let element"> Ver </mat-cell>
+                  <mat-cell *matCellDef="let element"> <a class="click-ver" (click)="carregarDadosPerfil(element)">Ver</a> </mat-cell>
                 </ng-container>
 
                 <mat-header-row *matHeaderRowDef="displayedColumnsMayor"></mat-header-row>
@@ -166,7 +225,7 @@
             
                 <ng-container matColumnDef="elected">
                   <mat-header-cell *matHeaderCellDef> Eleito </mat-header-cell>
-                  <mat-cell *matCellDef="let element"> {{element.electionInformation.elected}} </mat-cell>
+                  <mat-cell *matCellDef="let element"> {{element.electionInformation.elected ? '✔' : '✗'}} </mat-cell>
                 </ng-container>
 
                 <ng-container matColumnDef="totalVotes">
@@ -176,7 +235,7 @@
 
                 <ng-container matColumnDef="perfil">
                   <mat-header-cell *matHeaderCellDef> Perfil </mat-header-cell>
-                  <mat-cell *matCellDef="let element"> Ver </mat-cell>
+                  <mat-cell *matCellDef="let element"> <a class="click-ver" (click)="carregarDadosPerfil(element)">Ver</a> </mat-cell>
                 </ng-container>
 
                 <mat-header-row *matHeaderRowDef="displayedColumnsCandidate"></mat-header-row>

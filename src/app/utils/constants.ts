@@ -11,8 +11,8 @@ export class Constants {
     };
     public static candidate = {
         getTopCandidates: '/api/candidate/getTopCandidates/{0}/{1}/{2}/{3}/{4}?token={5}',
-        getCandidateDetails: '/api/candidate/getCandidateDetails/{0}/{1}/{2}',
-        getVotesByLocal: '/api/candidate/getVotesByLocal/{0}/{1}/{2}',
+        getCandidateDetails: '/api/candidate/getCandidateDetails/{0}/{1}/{2}?token={3}',
+        getVotesByLocal: '/api/candidate/getVotesByLocal/{0}/{1}/{2}?token={3}',
         getVotesByDistrict: '/api/candidate/getVotesByDistrict/{0}/{1}/{2}'
     };
     public static auth = {

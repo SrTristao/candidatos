@@ -37,15 +37,35 @@
         -webkit-flex: 1;
         -ms-flex: 1;
         flex: 1;
-        .barra-vertical {
-            position: relative;
-            z-index: 1;
-            overflow: hidden;
+        .informations {
             width: 32vw;
             padding-right: 1.22vw;
             padding-left: 1.22vw;
-            box-shadow: 1px 1px 23px 0 rgba(0, 0, 0, .25);
+            -webkit-box-shadow: 1px 1px 23px 0 rgba(0, 0, 0, 0.25);
+            box-shadow: 1px 1px 23px 0 rgba(0, 0, 0, 0.25);
             overflow: scroll;
+            position: absolute;
+            left: 0%;
+            top: 0px;
+            right: 0%;
+            bottom: 0px;
+            z-index: 1;
+            display: -webkit-box;
+            display: -ms-flexbox;
+            display: flex;
+            height: 100%;
+            -webkit-box-orient: vertical;
+            -webkit-box-direction: normal;
+            -ms-flex-direction: column;
+            flex-direction: column;
+            background-color: #fff;
+            background-image: none;
+            background-size: auto;
+            background-repeat: repeat;
+            -webkit-transition: -webkit-transform 350ms ease;
+            transition: -webkit-transform 350ms ease;
+            transition: transform 350ms ease;
+            transition: transform 350ms ease, -webkit-transform 350ms ease;
             form {
                 position: relative;
                 margin-top: -0.35px;
@@ -150,6 +170,164 @@
                         .customWithClass{
                             flex: 0 0 100px;
                          }
+                         .click-ver {
+                             color: $color-default;
+                             text-decoration: none;
+                             cursor: pointer;
+                             &:hover {
+                                 text-decoration: underline;
+                             }
+                         }
+                    }
+                }
+            }
+        }
+        .detalhe {
+            &.fechado {
+                -webkit-transform: translate(-100%, 0%);
+                -ms-transform: translate(-100%, 0%);
+                transform: translate(-100%, 0%);
+                -webkit-transition: -webkit-transform 350ms ease;
+                transition: -webkit-transform 350ms ease;
+                transition: transform 350ms ease;
+                transition: transform 350ms ease, -webkit-transform 350ms ease;
+            }
+            width: 32vw;
+            padding-right: 1.22vw;
+            padding-left: 1.22vw;
+            -webkit-box-shadow: 1px 1px 23px 0 rgba(0, 0, 0, 0.25);
+            box-shadow: 1px 1px 23px 0 rgba(0, 0, 0, 0.25);
+            position: absolute;
+            left: 0%;
+            top: 0px;
+            right: 0%;
+            bottom: 0px;
+            z-index: 900;
+            display: -webkit-box;
+            display: -webkit-flex;
+            display: -ms-flexbox;
+            display: flex;
+            height: 100%;
+            -webkit-box-orient: vertical;
+            -webkit-box-direction: normal;
+            -webkit-flex-direction: column;
+            -ms-flex-direction: column;
+            flex-direction: column;
+            background-color: #fff;
+            background-image: none;
+            background-size: auto;
+            background-repeat: repeat;
+            -webkit-transition: -webkit-transform 350ms ease;
+            transition: -webkit-transform 350ms ease;
+            transition: transform 350ms ease;
+            transition: transform 350ms ease, -webkit-transform 350ms ease;
+            .div-detalhes {
+                display: -webkit-box;
+                display: -webkit-flex;
+                display: -ms-flexbox;
+                display: flex;
+                height: 15.5vw;
+                -webkit-box-flex: 0;
+                -webkit-flex: 0 0 auto;
+                -ms-flex: 0 0 auto;
+                flex: 0 0 auto;
+                border-bottom: 1px solid #ddd;
+                .box-foto {
+                    width: 7.6vw;
+                    padding-top: 3.5vw;
+                    img {
+                        max-width: 100%;
+                    }
+                }
+                .box-descricao {
+                    padding-top: 3.5vw;
+                    padding-left: 0.5vw;
+                    -webkit-box-flex: 1;
+                    -webkit-flex: 1;
+                    -ms-flex: 1;
+                    flex: 1;
+                    color: $color-default;
+                    .display-name {
+                        margin-bottom: 0.3vw;
+                        font-size: 1.17vw;
+                        line-height: 1.17vw;
+                        font-weight: 900;
+                    }
+                    .display-legenda {
+                        margin-bottom: 0.9vw;
+                        font-size: 0.85vw;
+                        line-height: 0.85vw;
+                    }
+                    .other-text {
+                        margin-bottom: 0.5vw;
+                        font-size: 0.85vw;
+                        line-height: 0.85vw;
+                        font-weight: 900;
+                        span {
+                            font-weight: 400;
+                        }
+                    }
+                }
+                .bt-sair {
+                    width: 1.2vw;
+                    height: 1.2vw;
+                    margin-top: 0.9vw;
+                    margin-right: 0.9vw;
+                    margin-left: 0.5vw;
+                    background-image: url(../assets/images/bt-close.png);
+                    background-position: 50% 50%;
+                    background-size: contain;
+                    background-repeat: no-repeat;
+                    cursor: pointer;
+                }
+            }
+            .div-votos {
+                overflow: hidden;
+                padding: 1.5vw 1.22vw 2.9vw;
+                -webkit-box-flex: 1;
+                -webkit-flex: 1;
+                -ms-flex: 1;
+                flex: 1;
+                .tabela-escola {
+                    overflow: scroll;
+                    height: 100%;
+                    .txt-boxes {
+                        padding-top: 1.33982948vw;
+                        color: $color-default;
+                        font-size: 1.4vw;
+                        line-height: 1.4vw;
+                        font-weight: 500;
+                        &.colegio {
+                            margin-bottom: 1vw;
+                            padding-top: 0vw;
+                            padding-left: 0vw;
+                        }
+                    }
+                    .detalhe-grafico {
+                        margin-bottom: 1.5vw;
+                    }
+                    .detalhe-tabela {
+                        .schoolWidthClass {
+                            flex: 0 0 200px;
+                        }
+                        .withoutAlign {
+                            text-align: initial !important;
+                        }
+                        mat-header-row {
+                            background-color: $color-default;
+                            margin-top: 10px;
+                            padding: 0;
+                        }
+                        mat-row {
+                            padding: 0px;
+                        }
+                        mat-header-cell {
+                            color: white;
+                        }
+                        mat-cell, mat-header-cell {
+                            font-size: 0.8vw !important;
+                            text-align: center;
+                        }
                     }
                 }
             }

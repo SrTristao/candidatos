@@ -41,6 +41,7 @@ const appRoutes: Routes = [
     useClass: HTTPInterceptor,
     multi: true
   }],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
+  entryComponents: []
 })
 export class AppModule { }

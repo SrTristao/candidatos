@@ -20,11 +20,11 @@ export class CandidateService {
     }
 
     getCandidateDetails(param) : Observable<any> {
-        return this.httpService.get(this.url + this.stringFormat(this.candidate.getCandidateDetails, param.anoEleicao, param.codigoCidade, param.numeroCandidato), {});
+        return this.httpService.get(this.url + this.stringFormat(this.candidate.getCandidateDetails, param.anoEleicao, param.codigoCidade, param.numeroCandidato, this.authService.getToken()), {});
     }
 
     getVotesByLocal(param) : Observable<any> {
-        return this.httpService.get(this.url + this.stringFormat(this.candidate.getVotesByLocal, param.anoEleicao, param.codigoCidade, param.numeroCandidato), {});
+        return this.httpService.get(this.url + this.stringFormat(this.candidate.getVotesByLocal, param.anoEleicao, param.codigoCidade, param.numeroCandidato, this.authService.getToken()), {});
     }
 
     getVotesByDistrict(param) : Observable<any> {

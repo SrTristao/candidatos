@@ -15,6 +15,8 @@ import { City } from './class/City';
 import { PoliticalParty } from './class/PoliticalParty';
 import { Candidate } from './class/Candidate';
 
+declare var MarkerClusterer:any;
+
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -33,6 +35,7 @@ export class AppComponent {
   politicalPartiesArr: PoliticalParty[] = [];
   topCandidatesArr: Candidate[] = [];
   topMayorsArr: Candidate[] = [];
+  candidateDetail: Candidate = new Candidate();
   totalElectorate = 0;
   totalCities = 0;
   totalDistricts = 0;
@@ -45,6 +48,10 @@ export class AppComponent {
   citySelected = '';
   districtSelected = '';
   votosNulosPartidos = 0;
+  objCity: any;
+  district: any;
+  objState: any;
+  localeMapCurrent: any;
 
   //Forms
   filteredOptionsState: Observable<State[]>;
@@ -60,11 +67,14 @@ export class AppComponent {
   map: google.maps.Map;
   geocoder = new google.maps.Geocoder();
   markers = [];
+  locations = [];
+  markerClusterer: any;
 
   //Charts
   votosPorPartidoChart = [];
   votosPorCandidatoChart = [];
   votosPorPrefeitoChart = [];
+  votosPorEscolasChart = [];
   
   //Tables
   displayedColumnsPoliticalParties = ['index', '_id', 'total', 'percent'];
@@ -73,6 +83,8 @@ export class AppComponent {
   dataSourceCandidate = new MatTableDataSource(this.topCandidatesArr);
   displayedColumnsMayor = ['index', 'nameExibition', 'politicalParty', 'elected', 'totalVotes', 'perfil'];
   dataSourceMayor = new MatTableDataSource(this.topMayorsArr);
+  displayedColumnsSchools = ['index', 'colegio', 'votos'];
+  dataSourceSchools = new MatTableDataSource([]);
 
   constructor(private authService: AuthService, private countryService: CountryService,
     private cityService: CityService, private candidateService: CandidateService) {}
@@ -82,7 +94,7 @@ export class AppComponent {
 
       var mapProp = {
         center: new google.maps.LatLng(-14.235004,-51.92528),
-        zoom: 4,
+        zoom: 3,
         mapTypeControl: false,
         streetViewControl: false
       };
@@ -99,13 +111,13 @@ export class AppComponent {
 
   }
 
-  private resetVariables() {
+  private resetVariables(): void {
     this.formCity.disable();
     this.formDistrict.disable();
     this.formsSchool.disable();
   }
 
-  private carregarEstados() {
+  private carregarEstados(): void {
     this.countryService.getStates().subscribe(result => {
       result.states.forEach((state: State) => {
         if (state.state !== undefined)
@@ -122,13 +134,15 @@ export class AppComponent {
     })
   }
 
-  private resetVariablesCities() {
+  private resetVariablesCities(): void {
     this.formCity.setValue('');
     this.citySelected = '';
+    this.formDistrict.disable();
     this.resetDistrict();
   }
 
-  carregarCidades(state) {
+  carregarCidades(state): void {
+    this.objState = state;
     this.resetVariablesCities();
     this.formCity.enable();
     this.mapMarker(`Estado de ${state.name}`);
@@ -148,19 +162,20 @@ export class AppComponent {
       })
   }
 
-  private resetDistrict() {
+  private resetDistrict(): void {
     this.formDistrict.setValue(''); 
     this.districtSelected = '';
     this.districtsArr = [];
     this.totalDistricts = 0;
   }
 
-  carregarDadosCidade(city) {
+  carregarDadosCidade(city): void {
+    this.objCity = city;
     this.resetDistrict();
     this.formDistrict.enable();
     this.citySelected = city.name;
     this.localeSelected = city.name;
-    this.mapMarker(city.name);
+    this.mapMarker(`${city.name} ${this.objState.state}`);
     this.cityService.getDistricts(city.code).subscribe(result => {
       this.districtsArr = result.districts;
       this.totalDistricts = result.districts.length;
@@ -193,14 +208,33 @@ export class AppComponent {
     })
   }
 
-  carregarDadosBairro(bairro) {
+  carregarDadosBairro(bairro): void {
+    this.district = bairro;
     this.formsSchool.enable();
     this.districtSelected = bairro;
     this.localeSelected = bairro;
     this.mapMarker(`${bairro} ${this.formCity.value}`);
   }
 
-  private makeVotesMayorsTable(mayors) {
+  carregarDadosPerfil(candidate): void {
+    this.candidateService.getVotesByLocal({anoEleicao: 2016, codigoCidade: this.objCity.code, numeroCandidato: candidate.electionInformation.candidateNumber})
+    .subscribe(result => {
+      this.makeVotesSchoolsChart(result);
+      this.makeVotesSchoolsTable(result);
+      this.candidateService.getCandidateDetails({anoEleicao: 2016, codigoCidade: this.objCity.code, numeroCandidato: candidate.electionInformation.candidateNumber})
+      .subscribe(details => {
+        this.candidateDetail = details.candidate;
+        document.getElementsByClassName('detalhe')[0].classList.remove('fechado');
+      })
+    })
+  }
+
+  sairDetalhes() {
+    document.getElementsByClassName('detalhe')[0].classList.add('fechado');
+    this.mapMarker(this.localeMapCurrent);
+  }
+
+  private makeVotesMayorsTable(mayors): void {
     mayors = mayors.map((pp, index) => { 
       pp.index = index+1 
       return pp;
@@ -208,7 +242,32 @@ export class AppComponent {
     this.dataSourceMayor = new MatTableDataSource(mayors); 
   }
 
-  private makeVotesMayorsChart(obj) {
+  private makeVotesSchoolsTable(votesSchools) : void {
+    votesSchools = votesSchools.map((pp, index) => { 
+      pp.index = index+1 
+      return pp;
+    });
+    this.dataSourceSchools = new MatTableDataSource(votesSchools); 
+  }
+
+  private makeVotesSchoolsChart(obj): void {
+    this.votosPorEscolasChart = [];
+    this.locations = [];
+    let labels = [];
+    this.votosPorEscolasChart.push(['Colégio', 'Votos']);
+    obj.forEach((value, key) => {
+      this.votosPorEscolasChart.push([obj[key]._id.localName, obj[key].total]);
+      this.locations.push({lat: obj[key]._id.geoLocalization.coordinates[0], lng: obj[key]._id.geoLocalization.coordinates[1]});
+      labels.push(obj[key].total+"");
+      if(key === obj.length-1) {
+        localStorage.setItem('votosPorEscolasChart', JSON.stringify(this.votosPorEscolasChart));
+        GoogleCharts.load(this.drawChartVotesSchool);
+        this.mapMarkerClusterer(this.locations, labels);
+      }
+    })
+  }
+
+  private makeVotesMayorsChart(obj): void {
     this.votosPorPrefeitoChart = [];
     this.votosPorPrefeitoChart.push(['Nome', 'Votos']);
     obj.forEach((value, key) => {
@@ -221,7 +280,7 @@ export class AppComponent {
     })
   }
 
-  private makeVotesCandidatesTable(candidates) {
+  private makeVotesCandidatesTable(candidates): void {
     candidates = candidates.map((pp, index) => { 
       pp.index = index+1 
       return pp;
@@ -229,7 +288,7 @@ export class AppComponent {
     this.dataSourceCandidate = new MatTableDataSource(candidates); 
   }
 
-  private makeVotesCandidatesChart(obj) {
+  private makeVotesCandidatesChart(obj): void {
     this.votosPorCandidatoChart = [];
     this.votosPorCandidatoChart.push(['Nome', 'Votos']);
     obj.forEach((value, key) => {
@@ -242,7 +301,7 @@ export class AppComponent {
     })
   }
 
-  private makeVotesPoliticalPartiesTable(politicalParties) {
+  private makeVotesPoliticalPartiesTable(politicalParties): void {
     let count = 0;
     politicalParties.some(pp => { 
       count++;
@@ -256,7 +315,7 @@ export class AppComponent {
     this.dataSourcePoliticalParties = new MatTableDataSource(politicalParties); 
   }
 
-  private makeVotesPoliticalPartiesChart(obj) {
+  private makeVotesPoliticalPartiesChart(obj): void {
     this.votosPorPartidoChart = [];
     this.votosPorPartidoChart.push(['Partidos', 'Votos']);
     obj.forEach((value, key) => {
@@ -293,7 +352,8 @@ export class AppComponent {
     return this.districtsArr.filter((district: any) => district.toLowerCase().indexOf(val.toLowerCase()) === 0);
   }
 
-  mapMarker(address) {
+  mapMarker(address): void {
+    this.localeMapCurrent = address;
     this.geocoder.geocode({
       componentRestrictions: {
         country: 'BR'
@@ -312,15 +372,51 @@ export class AppComponent {
     })
   }
 
-  private clearMarkers(map) {
+  mapMarkerClusterer(locations, labels) : void {
+    this.clearMarkers(null);
+    this.markers = locations.map((location, index) => {
+      return new google.maps.Marker({
+        position: location,
+        label: labels[index % labels.length],
+        animation: google.maps.Animation.DROP
+      })
+    })
+    this.markerClusterer = new MarkerClusterer(this.map, this.markers, {imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'});
+    
+  }
+
+  private clearMarkers(map): void {
     if (this.markers) {
       for (var i = 0; i < this.markers.length; i++) {
         this.markers[i].setMap(map);
       }
     }
+    if (this.markerClusterer)
+      this.markerClusterer.clearMarkers();
   }
 
-  private drawChartTopMayors() {
+  private drawChartVotesSchool(): void {
+    let votosPorEscolasChart = JSON.parse(localStorage.getItem('votosPorEscolasChart'));
+    localStorage.removeItem('votosPorEscolasChart');
+    const data = GoogleCharts.api.visualization.arrayToDataTable(votosPorEscolasChart);
+    let materialOptionsCHART = {
+      bars: 'vertical',
+      chartArea: {
+        width: '100%',
+        height: '100%'
+      },
+      animation: {
+        duration: 500,
+        easing: 'out',
+      },
+      colors: ['#2b3e69']
+    };
+    const column = new GoogleCharts.api.visualization.ColumnChart(document.getElementById('votesSchoolChart'));
+    column.draw(data, materialOptionsCHART);
+  }
+
+
+  private drawChartTopMayors(): void {
     let votosPorPrefeitoChart = JSON.parse(localStorage.getItem('votosPorPrefeitoChart'));
     localStorage.removeItem('votosPorPrefeitoChart');
     const data = GoogleCharts.api.visualization.arrayToDataTable(votosPorPrefeitoChart);
@@ -340,7 +436,7 @@ export class AppComponent {
     column.draw(data, materialOptionsCHART);
   }
 
-  private drawChartTopCandidates() {
+  private drawChartTopCandidates(): void {
     let votosPorCandidatoChart = JSON.parse(localStorage.getItem('votosPorCandidatoChart'));
     localStorage.removeItem('votosPorCandidatoChart');
     const data = GoogleCharts.api.visualization.arrayToDataTable(votosPorCandidatoChart);
@@ -360,7 +456,7 @@ export class AppComponent {
     column.draw(data, materialOptionsCHART);
   }
 
-  private drawChartPoliticalParties() {
+  private drawChartPoliticalParties(): void {
     let votosPorPartidoChart = JSON.parse(localStorage.getItem('votosPorPartidoChart'));
     localStorage.removeItem('votosPorPartidoChart');
     const data = GoogleCharts.api.visualization.arrayToDataTable(votosPorPartidoChart);

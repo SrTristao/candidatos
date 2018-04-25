@@ -1,0 +1,31 @@
+<div class="example-container">
+    <mat-form-field>
+        <input matInput [(ngModel)]="exam.name" placeholder="Nome">
+    </mat-form-field>
+
+    <div class="example-tooltip-host" matTooltip="Apenas números!" [matTooltipPosition]="positionToolTip">
+        <mat-form-field>
+            <input onlyNumber [(ngModel)]="exam.code_dasa" matInput placeholder="Código DASA">
+        </mat-form-field>
+    </div>
+
+    <mat-form-field>
+        <input matInput [(ngModel)]="exam.code_alfa" placeholder="Código Alfa">
+    </mat-form-field>
+
+    <mat-form-field>
+        <input matInput [(ngModel)]="exam.categorie" placeholder="Categoria">
+    </mat-form-field>
+
+    <div class="button-row">
+        <button mat-raised-button color="primary" (click)="confirm()"> Salvar </button>
+        <button mat-raised-button color="warn" (click)="cancel()"> Cancelar </button>
+    </div>
+    
+<!-- 
+    <mat-form-field>
+        <mat-select placeholder="Select">
+        <mat-option value="option">Option</mat-option>
+        </mat-select>
+    </mat-form-field> -->
+</div>

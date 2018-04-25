@@ -18,11 +18,12 @@
         -webkit-flex: 0 0 auto;
         -ms-flex: 0 0 auto;
         flex: 0 0 auto;
-        background-color: $color-default;
+        background-color: #ecdca1;
         color: white;
-        h2 {
+        img {
             padding: 10px;
-            margin: 0;
+            height: 42px;
+            max-width: 100%;
         }
     }
     .middle {
@@ -289,7 +290,8 @@
                 -ms-flex: 1;
                 flex: 1;
                 .tabela-escola {
-                    overflow: scroll;
+                    overflow-y: scroll;
+                    overflow-x: hidden;
                     height: 100%;
                     .txt-boxes {
                         padding-top: 1.33982948vw;

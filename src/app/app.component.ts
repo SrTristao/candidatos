@@ -4,7 +4,6 @@ import { MatTableDataSource } from '@angular/material';
 import {Observable} from 'rxjs/Observable';
 import {startWith} from 'rxjs/operators/startWith';
 import {map} from 'rxjs/operators/map';
-// import { } from '@types/googlemaps';
 import { GoogleCharts } from 'google-charts';
 import { AuthService } from './services/auth.service';
 import { CountryService } from './services/country.service';
@@ -93,7 +92,6 @@ export class AppComponent {
 
   ngOnInit() {
       this.resetVariables();
-      console.log(google);
       this.map = google.maps.map;
       this.geocoder = new google.maps.Geocoder();
       var mapProp = {
@@ -109,9 +107,8 @@ export class AppComponent {
 
       this.authService.login({"username": "dev.ironpatriot@infinitydata.com.br", "password": "Mudar123", "domain": "dev"}).subscribe(result => {
         localStorage.setItem('token', result.token);
+        this.carregarEstados();
       });
-
-      this.carregarEstados();
 
   }
 

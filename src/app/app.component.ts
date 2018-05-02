@@ -314,7 +314,6 @@ export class AppComponent {
     if (eleicoes === 'Federais') {
       this.candidateService.getVotesByLocal({anoEleicao: this.yearSelected.year, codigoCidade: this.objState.state, numeroCandidato: candidateNumber})
       .subscribe(result => {
-        console.log(result);
         this.makeVotesSchoolsChart(result);
         this.makeVotesSchoolsTable(result);
         this.candidateService.getCandidateDetails({anoEleicao: this.yearSelected.year, codigoCidade: this.objState.state, numeroCandidato: candidateNumber})
@@ -322,6 +321,9 @@ export class AppComponent {
           this.candidateDetail = details.candidate;
           if (Array.isArray(this.candidateDetail.electionInformation)) {
             this.candidateDetail.electionInformation = this.candidateDetail.electionInformation[0];
+          }
+          if (Array.isArray(this.candidateDetail.personalInformation.occupation)) {
+            this.candidateDetail.personalInformation.occupation = this.candidateDetail.personalInformation.occupation[0]; 
           }
           document.getElementsByClassName('detalhe')[0].classList.remove('fechado');
         })

@@ -22,7 +22,7 @@
             Partido: <span>{{candidateDetail.electionInformation.politicalParty.name}}</span>
           </div>
           <div class="other-text">
-            Votos: <span>{{candidateDetail.totalVotes}}</span>
+            Votos: <span>{{candidateDetail.electionInformation.totalVotes || 0}}</span>
           </div>
           <div class="other-text">
             CPF: <span>{{candidateDetail.personalInformation.document}}</span>

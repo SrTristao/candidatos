@@ -108,7 +108,6 @@ export class AppComponent {
     private temporaryService: TemporaryService) {}
 
   ngOnInit() {
-    console.log(google);
     this.yearGroup = [{name: 'Eleições Municipais', year: [2016]},
                 {name: 'Eleições Federais', year: [2014, 2018]}];
 

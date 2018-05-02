@@ -48,6 +48,8 @@ export class AppComponent {
   totalPoliticalParties = 0;
   totalCandidates = 0;
   totalMayors = 0;
+  totalDepFederais = 0;
+  totalDepEstaduais = 0;
   localeSelected = 'BRASIL';
   stateSelected = 'BRASIL';
   citySelected = '';
@@ -107,7 +109,7 @@ export class AppComponent {
 
   ngOnInit() {
     this.yearGroup = [{name: 'Eleições Municipais', year: [2016]},
-                {name: 'Eleições Presidenciais', year: [2014, 2018]}];
+                {name: 'Eleições Federais', year: [2014, 2018]}];
 
     this.geocoder = new google.maps.Geocoder();
 
@@ -159,6 +161,8 @@ export class AppComponent {
     this.totalPoliticalParties = 0;
     this.totalCandidates = 0;
     this.totalMayors = 0;
+    this.totalDepEstaduais = 0;
+    this.totalDepFederais = 0;
     this.localeSelected = 'BRASIL';
     this.stateSelected = 'BRASIL';
     this.citySelected = '';
@@ -264,7 +268,7 @@ export class AppComponent {
     if (this.yearSelected.name === 'Eleições Municipais') {
       this.carregarCandidatosMunicipais(city);
     } else {
-      this.carregarCandidatosPresidenciais();
+      this.carregarCandidatosFederais();
     }
 
   }
@@ -283,17 +287,15 @@ export class AppComponent {
     })
   }
 
-  private carregarCandidatosPresidenciais(): void{
+  private carregarCandidatosFederais(): void{
     this.candidateService.getTopCandidates({anoEleicao: this.yearSelected.year, codigoCidade: this.objState.state, codigoCargo: 6, numeroTurno: 1, limite: 50}).subscribe(result => {
-      console.log(result);
-      this.totalCandidates = result.length;
+      this.totalDepFederais = result.length;
       this.makeVotesDepTable(result.candidates, 'Federal');
       this.makeVotesDepChart(result.candidates, 'Federal');
     })
     
     this.candidateService.getTopCandidates({anoEleicao: this.yearSelected.year, codigoCidade: this.objState.state, codigoCargo: 7, numeroTurno: 1, limite: 50}).subscribe(result => {
-      console.log(result);
-      this.totalMayors = result.length;
+      this.totalDepEstaduais = result.length;
       this.makeVotesDepTable(result.candidates, 'Estadual');
       this.makeVotesDepChart(result.candidates, 'Estadual');
     })

@@ -1,5 +1,5 @@
 export class Constants {
-    public static URL: string = 'http://ironpatriot-api.infinitydata.com.br';
+    public static URL: string = 'http://ironpatriot-api.portaldeconsultas.com.br';
     public static VERSION: string = '1';
     public static country = {
         getStates: '/api/country/getStates?token={0}',

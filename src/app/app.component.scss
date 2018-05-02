@@ -12,6 +12,9 @@
     -webkit-flex-direction: column;
     -ms-flex-direction: column;
     flex-direction: column;
+    .hiddenAccordion {
+        visibility: hidden !important;
+    }
     .barra {
         width: 100%;
         -webkit-box-flex: 0;

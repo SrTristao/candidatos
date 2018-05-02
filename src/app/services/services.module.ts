@@ -5,6 +5,7 @@ import { CityService } from './city.service';
 import { CountryService } from './country.service';
 import { CandidateService } from './candidate.service';
 import { AuthService } from './auth.service';
+import { TemporaryService } from './temporary';
 
 @NgModule({
   declarations: [],
@@ -14,7 +15,8 @@ import { AuthService } from './auth.service';
         CityService,
         CountryService,
         CandidateService,
-        AuthService
+        AuthService,
+        TemporaryService
     ],
   exports: [HttpClientModule]
 })

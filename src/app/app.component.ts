@@ -1,9 +1,9 @@
 import { Component, ViewChild } from '@angular/core';
 import { FormGroup, FormControl } from '@angular/forms';
 import { MatTableDataSource } from '@angular/material';
-import {Observable} from 'rxjs/Observable';
-import {startWith} from 'rxjs/operators/startWith';
-import {map} from 'rxjs/operators/map';
+import { Observable } from 'rxjs/Observable';
+import { startWith } from 'rxjs/operators/startWith';
+import { map } from 'rxjs/operators/map'; 
 import { GoogleCharts } from 'google-charts';
 import { AuthService } from './services/auth.service';
 import { CountryService } from './services/country.service';
@@ -13,6 +13,7 @@ import { State } from './class/State';
 import { City } from './class/City';
 import { PoliticalParty } from './class/PoliticalParty';
 import { Candidate } from './class/Candidate';
+import { TemporaryService } from './services/temporary';
 
 declare var MarkerClusterer:any;
 declare var google:any;
@@ -27,6 +28,8 @@ export class AppComponent {
   accordionPartidos = false;
   accordionVereadores = false;
   accordionPrefeitos = false;
+  accordionDeputadoEstadual = false;
+  accordionDeputadoFederal = false;
 
   //Variaveis para carregar informações.
   statesArr: State[] = [];
@@ -35,6 +38,8 @@ export class AppComponent {
   politicalPartiesArr: PoliticalParty[] = [];
   topCandidatesArr: Candidate[] = [];
   topMayorsArr: Candidate[] = [];
+  depFederalArr: any[] = [];
+  depEstadualArr: any[] = [];
   candidateDetail: Candidate = new Candidate();
   totalElectorate = 0;
   totalCities = 0;
@@ -52,6 +57,8 @@ export class AppComponent {
   district: any;
   objState: any;
   localeMapCurrent: any;
+  yearGroup: any[];
+  yearSelected: {year: 0, name: 'Eleições Municipais'};
 
   //Forms
   filteredOptionsState: Observable<State[]>;
@@ -61,6 +68,7 @@ export class AppComponent {
   filteredOptionsDistrict: Observable<any[]>;
   formDistrict: FormControl = new FormControl();
   formsSchool: FormControl = new FormControl();
+  formYear: FormControl = new FormControl();
 
   //Maps
   @ViewChild('gmap') gmapElement: any;
@@ -74,6 +82,8 @@ export class AppComponent {
   //Charts
   votosPorPartidoChart = [];
   votosPorCandidatoChart = [];
+  votosPorDepFederalChart = [];
+  votosPorDepEstadualChart = [];
   votosPorPrefeitoChart = [];
   votosPorEscolasChart = [];
   
@@ -86,40 +96,93 @@ export class AppComponent {
   dataSourceMayor = new MatTableDataSource(this.topMayorsArr);
   displayedColumnsSchools = ['index', 'colegio', 'votos'];
   dataSourceSchools = new MatTableDataSource([]);
+  displayedColumnsDepFederal = ['index', 'nameExibition', 'politicalParty', 'elected', 'totalVotes', 'perfil'];
+  dataSourceDepFederal = new MatTableDataSource(this.depFederalArr);
+  displayedColumnsDepEstadual = ['index', 'nameExibition', 'politicalParty', 'elected', 'totalVotes', 'perfil'];
+  dataSourceDepEstadual = new MatTableDataSource(this.depEstadualArr);
 
   constructor(private authService: AuthService, private countryService: CountryService,
-    private cityService: CityService, private candidateService: CandidateService) {}
+    private cityService: CityService, private candidateService: CandidateService,
+    private temporaryService: TemporaryService) {}
 
   ngOnInit() {
-      this.resetVariables();
-      this.map = google.maps.map;
-      this.geocoder = new google.maps.Geocoder();
-      var mapProp = {
-        center: new google.maps.LatLng(-14.235004,-51.92528),
-        zoom: 3,
-        mapTypeControl: false,
-        streetViewControl: false
-      };
+    this.yearGroup = [{name: 'Eleições Municipais', year: [2016]},
+                {name: 'Eleições Presidenciais', year: [2014, 2018]}];
 
-      this.map = new google.maps.Map(this.gmapElement.nativeElement, mapProp);
+    this.geocoder = new google.maps.Geocoder();
 
-      this.mapMarker('Brasil');
+    this.resetVariables();
+    
+    this.authService.login({"username": "dev@comunnica.com.br", "password": "9tR7Y8d5", "domain": "TI"}).subscribe(result => {
+      localStorage.setItem('token', result.token);
+      //this.carregarEstados();
+    });
 
-      this.authService.login({"username": "dev.ironpatriot@infinitydata.com.br", "password": "Mudar123", "domain": "dev"}).subscribe(result => {
-        localStorage.setItem('token', result.token);
-        this.carregarEstados();
-      });
-
+    this.temporaryService.generateToken({"username": "dev.ironpatriot@infinitydata.com.br", "password": "Mudar123","domain": "dev"}).subscribe(result => {
+      localStorage.setItem('tokenTemporary', result.token);
+      this.carregarEstados();
+    })
   }
 
-  private resetVariables(): void {
+  enableState(name, year): void {
+    this.resetVariables();
+    this.formState.enable();
+    this.yearSelected = {name, year};
+  }
+
+  resetVariables(): void {
+    this.accordionPartidos = false;
+    this.accordionVereadores = false;
+    this.accordionPrefeitos = false;
+    this.accordionDeputadoEstadual = false;
+    this.accordionDeputadoFederal = false;
+    this.formState.disable();
+    this.formState.setValue('');
     this.formCity.disable();
+    this.formCity.setValue('');
     this.formDistrict.disable();
+    this.formDistrict.setValue('');
     this.formsSchool.disable();
+    this.formsSchool.setValue('');
+    this.citiesArr = [];
+    this.districtsArr = [];
+    this.politicalPartiesArr = [];
+    this.topCandidatesArr = [];
+    this.topMayorsArr = [];
+    this.depEstadualArr = [];
+    this.depFederalArr = [];
+    this.candidateDetail = new Candidate();
+    this.totalElectorate = 0;
+    this.totalCities = 0;
+    this.totalDistricts = 0;
+    this.totalSchools = 0;
+    this.totalPoliticalParties = 0;
+    this.totalCandidates = 0;
+    this.totalMayors = 0;
+    this.localeSelected = 'BRASIL';
+    this.stateSelected = 'BRASIL';
+    this.citySelected = '';
+    this.districtSelected = '';
+    this.votosNulosPartidos = 0;
+    this.objCity = {};
+    this.district = '';
+    this.objState = {};
+    this.localeMapCurrent =  '';
+    this.yearSelected = {name: 'Eleições Municipais', year: 0};
+    let mapProp = {
+      center: new google.maps.LatLng(-14.235004,-51.92528),
+      zoom: 3,
+      mapTypeControl: false,
+      streetViewControl: false
+    };
+
+    this.map = new google.maps.Map(this.gmapElement.nativeElement, mapProp);
+
+    this.mapMarker('Brasil');
   }
 
   private carregarEstados(): void {
-    this.countryService.getStates().subscribe(result => {
+    this.temporaryService.getStates(localStorage.getItem('tokenTemporary')).subscribe(result => {
       result.states.forEach((state: State) => {
         if (state.state !== undefined)
           this.statesArr.push(state); 
@@ -145,12 +208,13 @@ export class AppComponent {
   carregarCidades(state): void {
     this.objState = state;
     this.resetVariablesCities();
-    this.formCity.enable();
     this.mapMarker(`Estado de ${state.name}`);
     this.stateSelected = state.name;
     this.localeSelected = state.name;
-    this.countryService.getCities({uf: state.state, anoEleicao: 2016})
+
+    this.temporaryService.getCities({uf: state.state, anoEleicao: this.yearSelected.year, token: localStorage.getItem('tokenTemporary')})
       .subscribe(result => {
+        this.formCity.enable();
         this.citiesArr = result.cities;
         this.totalCities = result.cities.length;
         this.totalElectorate = result.electorate;
@@ -177,6 +241,7 @@ export class AppComponent {
     this.citySelected = city.name;
     this.localeSelected = city.name;
     this.mapMarker(`${city.name} ${this.objState.state}`);
+
     this.cityService.getDistricts(city.code).subscribe(result => {
       this.districtsArr = result.districts;
       this.totalDistricts = result.districts.length;
@@ -189,23 +254,48 @@ export class AppComponent {
       )
     });
 
-    this.cityService.getPoliticalPartyVotes({anoEleicao: 2016, codigoCidade: city.code}).subscribe(result => {
+    this.cityService.getPoliticalPartyVotes({anoEleicao: this.yearSelected.year, codigoCidade: city.code}).subscribe(result => {
       this.totalPoliticalParties = result.politicalParties.length;
       this.politicalPartiesArr = result.politicalParties;
       this.makeVotesPoliticalPartiesChart(this.politicalPartiesArr);
       this.makeVotesPoliticalPartiesTable(this.politicalPartiesArr);
-    })
+    });
 
-    this.candidateService.getTopCandidates({anoEleicao: 2016, codigoCidade: city.code, codigoCargo: 13, numeroTurno: 1, limite: 50}).subscribe(result => {
+    if (this.yearSelected.name === 'Eleições Municipais') {
+      this.carregarCandidatosMunicipais(city);
+    } else {
+      this.carregarCandidatosPresidenciais();
+    }
+
+  }
+
+  private carregarCandidatosMunicipais(city): void {
+    this.candidateService.getTopCandidates({anoEleicao: this.yearSelected.year, codigoCidade: city.code, codigoCargo: 13, numeroTurno: 1, limite: 50}).subscribe(result => {
       this.totalCandidates = result.length;
       this.makeVotesCandidatesTable(result.candidates);
       this.makeVotesCandidatesChart(result.candidates);
     })
     
-    this.candidateService.getTopCandidates({anoEleicao: 2016, codigoCidade: city.code, codigoCargo: 11, numeroTurno: 1, limite: 50}).subscribe(result => {
+    this.candidateService.getTopCandidates({anoEleicao: this.yearSelected.year, codigoCidade: city.code, codigoCargo: 11, numeroTurno: 1, limite: 50}).subscribe(result => {
       this.totalMayors = result.length;
       this.makeVotesMayorsTable(result.candidates);
       this.makeVotesMayorsChart(result.candidates);
+    })
+  }
+
+  private carregarCandidatosPresidenciais(): void{
+    this.candidateService.getTopCandidates({anoEleicao: this.yearSelected.year, codigoCidade: this.objState.state, codigoCargo: 6, numeroTurno: 1, limite: 50}).subscribe(result => {
+      console.log(result);
+      this.totalCandidates = result.length;
+      this.makeVotesDepTable(result.candidates, 'Federal');
+      this.makeVotesDepChart(result.candidates, 'Federal');
+    })
+    
+    this.candidateService.getTopCandidates({anoEleicao: this.yearSelected.year, codigoCidade: this.objState.state, codigoCargo: 7, numeroTurno: 1, limite: 50}).subscribe(result => {
+      console.log(result);
+      this.totalMayors = result.length;
+      this.makeVotesDepTable(result.candidates, 'Estadual');
+      this.makeVotesDepChart(result.candidates, 'Estadual');
     })
   }
 
@@ -217,12 +307,12 @@ export class AppComponent {
     this.mapMarker(`${bairro} ${this.formCity.value}`);
   }
 
-  carregarDadosPerfil(candidate): void {
-    this.candidateService.getVotesByLocal({anoEleicao: 2016, codigoCidade: this.objCity.code, numeroCandidato: candidate.electionInformation.candidateNumber})
+  carregarDadosPerfil(candidateNumber): void {
+    this.candidateService.getVotesByLocal({anoEleicao: this.yearSelected.year, codigoCidade: this.objCity.code, numeroCandidato: candidateNumber})
     .subscribe(result => {
       this.makeVotesSchoolsChart(result);
       this.makeVotesSchoolsTable(result);
-      this.candidateService.getCandidateDetails({anoEleicao: 2016, codigoCidade: this.objCity.code, numeroCandidato: candidate.electionInformation.candidateNumber})
+      this.candidateService.getCandidateDetails({anoEleicao: this.yearSelected.year, codigoCidade: this.objCity.code, numeroCandidato: candidateNumber})
       .subscribe(details => {
         this.candidateDetail = details.candidate;
         document.getElementsByClassName('detalhe')[0].classList.remove('fechado');
@@ -286,7 +376,7 @@ export class AppComponent {
     this.votosPorPrefeitoChart = [];
     this.votosPorPrefeitoChart.push(['Nome', 'Votos']);
     obj.forEach((value, key) => {
-      this.votosPorPrefeitoChart.push([obj[key].electionInformation.nameExibition, obj[key].totalVotes]);
+      this.votosPorPrefeitoChart.push([obj[key].electionInformation.nameExibition, obj[key].totalVotes || 0]);
 
       if(key === obj.length-1) {
         localStorage.setItem('votosPorPrefeitoChart', JSON.stringify(this.votosPorPrefeitoChart));
@@ -303,17 +393,64 @@ export class AppComponent {
     this.dataSourceCandidate = new MatTableDataSource(candidates); 
   }
 
+  private makeVotesDepTable(candidates, dep): void {
+    if (dep === 'Federal'){
+      candidates = candidates.map((pp, index) => { 
+        pp.index = index+1 
+        return pp;
+      });
+      this.dataSourceDepFederal = new MatTableDataSource(candidates); 
+    }
+
+    if (dep === 'Estadual') {
+      candidates = candidates.map((pp, index) => { 
+        pp.index = index+1 
+        return pp;
+      });
+      this.dataSourceDepEstadual = new MatTableDataSource(candidates); 
+    }
+  }
+
   private makeVotesCandidatesChart(obj): void {
     this.votosPorCandidatoChart = [];
     this.votosPorCandidatoChart.push(['Nome', 'Votos']);
     obj.forEach((value, key) => {
-      this.votosPorCandidatoChart.push([obj[key].electionInformation.nameExibition, obj[key].totalVotes]);
+      this.votosPorCandidatoChart.push([obj[key].electionInformation.nameExibition, obj[key].totalVotes || 0]);
 
       if(key === obj.length-1) {
         localStorage.setItem('votosPorCandidatoChart', JSON.stringify(this.votosPorCandidatoChart));
         GoogleCharts.load(this.drawChartTopCandidates);
       }
     })
+  }
+
+  private makeVotesDepChart(obj, dep): void {
+    if (dep === 'Federal') {
+      this.votosPorDepFederalChart = [];
+      this.votosPorDepFederalChart.push(['Nome', 'Votos']);
+      obj.forEach((value, key) => {
+        this.votosPorDepFederalChart.push([obj[key].electionInformation[0].nameExibition, obj[key].electionInformation[0].totalVotes || 0]);
+
+        if(key === obj.length-1) {
+          localStorage.setItem('votosPorDepFederalChart', JSON.stringify(this.votosPorDepFederalChart));
+          GoogleCharts.load(this.drawChartDepFederal);
+        }
+      })
+    }
+
+    if (dep === 'Estadual') {
+      this.votosPorDepEstadualChart = [];
+      this.votosPorDepEstadualChart.push(['Nome', 'Votos']);
+      obj.forEach((value, key) => {
+        this.votosPorDepEstadualChart.push([obj[key].electionInformation[0].nameExibition, obj[key].electionInformation[0].totalVotes || 0]);
+
+        if(key === obj.length-1) {
+          localStorage.setItem('votosPorDepEstadualChart', JSON.stringify(this.votosPorDepEstadualChart));
+          GoogleCharts.load(this.drawChartDepEstadual);
+        }
+      })    
+    }
+    
   }
 
   private makeVotesPoliticalPartiesTable(politicalParties): void {
@@ -430,6 +567,45 @@ export class AppComponent {
     column.draw(data, materialOptionsCHART);
   }
 
+  private drawChartDepFederal(): void {
+    let votosPorDepFederalChart = JSON.parse(localStorage.getItem('votosPorDepFederalChart'));
+    localStorage.removeItem('votosPorDepFederalChart');
+    const data = GoogleCharts.api.visualization.arrayToDataTable(votosPorDepFederalChart);
+    let materialOptionsCHART = {
+      bars: 'vertical',
+      chartArea: {
+        width: '100%',
+        height: '100%'
+      },
+      animation: {
+        duration: 500,
+        easing: 'out',
+      },
+      colors: ['#2b3e69']
+    };
+    const column = new GoogleCharts.api.visualization.ColumnChart(document.getElementById('topDepFederal'));
+    column.draw(data, materialOptionsCHART);
+  }
+
+  private drawChartDepEstadual(): void {
+    let votosPorDepEstadualChart = JSON.parse(localStorage.getItem('votosPorDepEstadualChart'));
+    localStorage.removeItem('votosPorDepEstadualChart');
+    const data = GoogleCharts.api.visualization.arrayToDataTable(votosPorDepEstadualChart);
+    let materialOptionsCHART = {
+      bars: 'vertical',
+      chartArea: {
+        width: '100%',
+        height: '100%'
+      },
+      animation: {
+        duration: 500,
+        easing: 'out',
+      },
+      colors: ['#2b3e69']
+    };
+    const column = new GoogleCharts.api.visualization.ColumnChart(document.getElementById('topDepEstadual'));
+    column.draw(data, materialOptionsCHART);
+  }
 
   private drawChartTopMayors(): void {
     let votosPorPrefeitoChart = JSON.parse(localStorage.getItem('votosPorPrefeitoChart'));

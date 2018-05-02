@@ -65,6 +65,17 @@
     <div class="informations">
       <form>
         <mat-form-field>
+          <mat-select placeholder="Ano Eleição" [formControl]="formYear">
+            <mat-option (click)="resetVariables()">-- None --</mat-option>
+            <mat-optgroup *ngFor="let group of yearGroup" [label]="group.name"
+                          [disabled]="group.disabled">
+              <mat-option *ngFor="let year of group.year" [disabled]="year === 2018" [value]="year" (click)="enableState(group.name, year)">
+                {{ year }}
+              </mat-option>
+            </mat-optgroup>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field>
           <input type="text" placeholder="Estado" aria-label="State" matInput [formControl]="formState" [matAutocomplete]="autoState">
           <mat-autocomplete #autoState="matAutocomplete">
             <mat-option *ngFor="let state of filteredOptionsState | async" [value]="state.name" (click)="carregarCidades(state)">
@@ -123,127 +134,219 @@
           <div class="num num-totaleleitores">{{totalElectorate}}</div>
         </div>
         <div class="boxes boxesvotos" [hidden]="citySelected === ''">
-          <mat-accordion>
-            <mat-expansion-panel (opened)="accordionPartidos = true"
-            (closed)="accordionPartidos = false">
-              <mat-expansion-panel-header>
-                <mat-panel-title>
-                  PARTIDOS
-                </mat-panel-title>
-              </mat-expansion-panel-header>
-              <div style="position: relative; width: 400px; height: 200px;" id="politicalParties" name="politicalParties"></div>
-              <mat-table #table [dataSource]="dataSourcePoliticalParties">
-                <ng-container matColumnDef="index">
-                  <mat-header-cell *matHeaderCellDef> </mat-header-cell>
-                  <mat-cell *matCellDef="let element"> {{element.index}} </mat-cell>
-                </ng-container>
-                <ng-container matColumnDef="_id">
-                  <mat-header-cell *matHeaderCellDef> Partido </mat-header-cell>
-                  <mat-cell *matCellDef="let element"> {{element._id}} </mat-cell>
-                </ng-container>
-            
-                <ng-container matColumnDef="total">
-                  <mat-header-cell *matHeaderCellDef> Votos </mat-header-cell>
-                  <mat-cell *matCellDef="let element"> {{element.total}} </mat-cell>
-                </ng-container>
-            
-                <ng-container matColumnDef="percent">
-                  <mat-header-cell *matHeaderCellDef> % </mat-header-cell>
-                  <mat-cell *matCellDef="let element"> {{element.percent}} </mat-cell>
-                </ng-container>
+          <div [hidden]="yearSelected.name !== 'Eleições Municipais'">
+            <mat-accordion>
+              <mat-expansion-panel (opened)="accordionPartidos = true"
+              (closed)="accordionPartidos = false">
+                <mat-expansion-panel-header>
+                  <mat-panel-title>
+                    PARTIDOS
+                  </mat-panel-title>
+                </mat-expansion-panel-header>
+                <div style="position: relative; width: 400px; height: 200px;" id="politicalParties" name="politicalParties"></div>
+                <mat-table #table [dataSource]="dataSourcePoliticalParties">
+                  <ng-container matColumnDef="index">
+                    <mat-header-cell *matHeaderCellDef> </mat-header-cell>
+                    <mat-cell *matCellDef="let element"> {{element.index}} </mat-cell>
+                  </ng-container>
+                  <ng-container matColumnDef="_id">
+                    <mat-header-cell *matHeaderCellDef> Partido </mat-header-cell>
+                    <mat-cell *matCellDef="let element"> {{element._id}} </mat-cell>
+                  </ng-container>
+              
+                  <ng-container matColumnDef="total">
+                    <mat-header-cell *matHeaderCellDef> Votos </mat-header-cell>
+                    <mat-cell *matCellDef="let element"> {{element.total}} </mat-cell>
+                  </ng-container>
+              
+                  <ng-container matColumnDef="percent">
+                    <mat-header-cell *matHeaderCellDef> % </mat-header-cell>
+                    <mat-cell *matCellDef="let element"> {{element.percent}} </mat-cell>
+                  </ng-container>
 
-                <mat-header-row *matHeaderRowDef="displayedColumnsPoliticalParties"></mat-header-row>
-                <mat-row *matRowDef="let row; columns: displayedColumnsPoliticalParties;"></mat-row>
-              </mat-table>
+                  <mat-header-row *matHeaderRowDef="displayedColumnsPoliticalParties"></mat-header-row>
+                  <mat-row *matRowDef="let row; columns: displayedColumnsPoliticalParties;"></mat-row>
+                </mat-table>
 
-              <div class="nulos_brancos">Votos nulos: {{votosNulosPartidos}}</div>
-            </mat-expansion-panel>
-            <mat-expansion-panel (opened)="accordionPrefeitos = true"
-            (closed)="accordionPrefeitos = false">
-              <mat-expansion-panel-header>
-                <mat-panel-title>
-                  PREFEITOS
-                </mat-panel-title> 
-              </mat-expansion-panel-header>
-              <div style="position: relative; width: 400px; height: 200px;" id="topMayor" name="topMayor"></div>
-              <mat-table #table [dataSource]="dataSourceMayor">
-                <ng-container matColumnDef="index">
-                  <mat-header-cell *matHeaderCellDef> </mat-header-cell>
-                  <mat-cell *matCellDef="let element"> {{element.index}} </mat-cell>
-                </ng-container>
-                <ng-container matColumnDef="nameExibition">
-                  <mat-header-cell *matHeaderCellDef [ngClass]="'customWithClass'"> Nome </mat-header-cell>
-                  <mat-cell *matCellDef="let element" [ngClass]="'customWithClass'"> {{element.electionInformation.nameExibition}} </mat-cell>
-                </ng-container>
-            
-                <ng-container matColumnDef="politicalParty">
-                  <mat-header-cell *matHeaderCellDef> Partido </mat-header-cell>
-                  <mat-cell *matCellDef="let element"> {{element.electionInformation.politicalParty.initials}} </mat-cell>
-                </ng-container>
-            
-                <ng-container matColumnDef="elected">
-                  <mat-header-cell *matHeaderCellDef> Eleito </mat-header-cell>
-                  <mat-cell *matCellDef="let element"> {{element.electionInformation.elected ? '✔' : '✗'}} </mat-cell>
-                </ng-container>
+                <div class="nulos_brancos">Votos nulos: {{votosNulosPartidos}}</div>
+              </mat-expansion-panel>
+              <mat-expansion-panel (opened)="accordionPrefeitos = true"
+              (closed)="accordionPrefeitos = false">
+                <mat-expansion-panel-header>
+                  <mat-panel-title>
+                    PREFEITOS
+                  </mat-panel-title> 
+                </mat-expansion-panel-header>
+                <div style="position: relative; width: 400px; height: 200px;" id="topMayor" name="topMayor"></div>
+                <mat-table #table [dataSource]="dataSourceMayor">
+                  <ng-container matColumnDef="index">
+                    <mat-header-cell *matHeaderCellDef> </mat-header-cell>
+                    <mat-cell *matCellDef="let element"> {{element.index}} </mat-cell>
+                  </ng-container>
+                  <ng-container matColumnDef="nameExibition">
+                    <mat-header-cell *matHeaderCellDef [ngClass]="'customWithClass'"> Nome </mat-header-cell>
+                    <mat-cell *matCellDef="let element" [ngClass]="'customWithClass'"> {{element.electionInformation.nameExibition}} </mat-cell>
+                  </ng-container>
+              
+                  <ng-container matColumnDef="politicalParty">
+                    <mat-header-cell *matHeaderCellDef> Partido </mat-header-cell>
+                    <mat-cell *matCellDef="let element"> {{element.electionInformation.politicalParty.initials}} </mat-cell>
+                  </ng-container>
+              
+                  <ng-container matColumnDef="elected">
+                    <mat-header-cell *matHeaderCellDef> Eleito </mat-header-cell>
+                    <mat-cell *matCellDef="let element"> {{element.electionInformation.elected ? '✔' : '✗'}} </mat-cell>
+                  </ng-container>
 
-                <ng-container matColumnDef="totalVotes">
-                  <mat-header-cell *matHeaderCellDef> Votos </mat-header-cell>
-                  <mat-cell *matCellDef="let element"> {{element.totalVotes}} </mat-cell>
-                </ng-container>
+                  <ng-container matColumnDef="totalVotes">
+                    <mat-header-cell *matHeaderCellDef> Votos </mat-header-cell>
+                    <mat-cell *matCellDef="let element"> {{element.totalVotes || 0}} </mat-cell>
+                  </ng-container>
 
-                <ng-container matColumnDef="perfil">
-                  <mat-header-cell *matHeaderCellDef> Perfil </mat-header-cell>
-                  <mat-cell *matCellDef="let element"> <a class="click-ver" (click)="carregarDadosPerfil(element)">Ver</a> </mat-cell>
-                </ng-container>
+                  <ng-container matColumnDef="perfil">
+                    <mat-header-cell *matHeaderCellDef> Perfil </mat-header-cell>
+                    <mat-cell *matCellDef="let element"> <a class="click-ver" (click)="carregarDadosPerfil(element.electionInformation.candidateNumber)">Ver</a> </mat-cell>
+                  </ng-container>
 
-                <mat-header-row *matHeaderRowDef="displayedColumnsMayor"></mat-header-row>
-                <mat-row *matRowDef="let row; columns: displayedColumnsMayor;"></mat-row>
-              </mat-table>
-            </mat-expansion-panel>
-            <mat-expansion-panel (opened)="accordionVereadores = true"
-            (closed)="accordionVereadores = false">
-              <mat-expansion-panel-header>
-                <mat-panel-title>
-                  VEREADORES
-                </mat-panel-title> 
-              </mat-expansion-panel-header>
-              <div style="position: relative; width: 400px; height: 200px;" id="topCandidate" name="topCandidate"></div>
-              <mat-table #table [dataSource]="dataSourceCandidate">
-                <ng-container matColumnDef="index">
-                  <mat-header-cell *matHeaderCellDef> </mat-header-cell>
-                  <mat-cell *matCellDef="let element"> {{element.index}} </mat-cell>
-                </ng-container>
-                <ng-container matColumnDef="nameExibition">
-                  <mat-header-cell *matHeaderCellDef [ngClass]="'customWithClass'"> Nome </mat-header-cell>
-                  <mat-cell *matCellDef="let element" [ngClass]="'customWithClass'"> {{element.electionInformation.nameExibition}} </mat-cell>
-                </ng-container>
-            
-                <ng-container matColumnDef="politicalParty">
-                  <mat-header-cell *matHeaderCellDef> Partido </mat-header-cell>
-                  <mat-cell *matCellDef="let element"> {{element.electionInformation.politicalParty.initials}} </mat-cell>
-                </ng-container>
-            
-                <ng-container matColumnDef="elected">
-                  <mat-header-cell *matHeaderCellDef> Eleito </mat-header-cell>
-                  <mat-cell *matCellDef="let element"> {{element.electionInformation.elected ? '✔' : '✗'}} </mat-cell>
-                </ng-container>
+                  <mat-header-row *matHeaderRowDef="displayedColumnsMayor"></mat-header-row>
+                  <mat-row *matRowDef="let row; columns: displayedColumnsMayor;"></mat-row>
+                </mat-table>
+              </mat-expansion-panel>
+              <mat-expansion-panel (opened)="accordionVereadores = true"
+              (closed)="accordionVereadores = false">
+                <mat-expansion-panel-header>
+                  <mat-panel-title>
+                    VEREADORES
+                  </mat-panel-title> 
+                </mat-expansion-panel-header>
+                <div style="position: relative; width: 400px; height: 200px;" id="topCandidate" name="topCandidate"></div>
+                <mat-table #table [dataSource]="dataSourceCandidate">
+                  <ng-container matColumnDef="index">
+                    <mat-header-cell *matHeaderCellDef> </mat-header-cell>
+                    <mat-cell *matCellDef="let element"> {{element.index}} </mat-cell>
+                  </ng-container>
+                  <ng-container matColumnDef="nameExibition">
+                    <mat-header-cell *matHeaderCellDef [ngClass]="'customWithClass'"> Nome </mat-header-cell>
+                    <mat-cell *matCellDef="let element" [ngClass]="'customWithClass'"> {{element.electionInformation.nameExibition}} </mat-cell>
+                  </ng-container>
+              
+                  <ng-container matColumnDef="politicalParty">
+                    <mat-header-cell *matHeaderCellDef> Partido </mat-header-cell>
+                    <mat-cell *matCellDef="let element"> {{element.electionInformation.politicalParty.initials}} </mat-cell>
+                  </ng-container>
+              
+                  <ng-container matColumnDef="elected">
+                    <mat-header-cell *matHeaderCellDef> Eleito </mat-header-cell>
+                    <mat-cell *matCellDef="let element"> {{element.electionInformation.elected ? '✔' : '✗'}} </mat-cell>
+                  </ng-container>
 
-                <ng-container matColumnDef="totalVotes">
-                  <mat-header-cell *matHeaderCellDef> Votos </mat-header-cell>
-                  <mat-cell *matCellDef="let element"> {{element.totalVotes}} </mat-cell>
-                </ng-container>
+                  <ng-container matColumnDef="totalVotes">
+                    <mat-header-cell *matHeaderCellDef> Votos </mat-header-cell>
+                    <mat-cell *matCellDef="let element"> {{element.totalVotes || 0}} </mat-cell>
+                  </ng-container>
 
-                <ng-container matColumnDef="perfil">
-                  <mat-header-cell *matHeaderCellDef> Perfil </mat-header-cell>
-                  <mat-cell *matCellDef="let element"> <a class="click-ver" (click)="carregarDadosPerfil(element)">Ver</a> </mat-cell>
-                </ng-container>
+                  <ng-container matColumnDef="perfil">
+                    <mat-header-cell *matHeaderCellDef> Perfil </mat-header-cell>
+                    <mat-cell *matCellDef="let element"> <a class="click-ver" (click)="carregarDadosPerfil(element.electionInformation.candidateNumber)">Ver</a> </mat-cell>
+                  </ng-container>
 
-                <mat-header-row *matHeaderRowDef="displayedColumnsCandidate"></mat-header-row>
-                <mat-row *matRowDef="let row; columns: displayedColumnsCandidate;"></mat-row>
-              </mat-table>
+                  <mat-header-row *matHeaderRowDef="displayedColumnsCandidate"></mat-header-row>
+                  <mat-row *matRowDef="let row; columns: displayedColumnsCandidate;"></mat-row>
+                </mat-table>
 
-            </mat-expansion-panel>
-          </mat-accordion>
+              </mat-expansion-panel>
+            </mat-accordion>
+          </div>
+
+          <div [hidden]="yearSelected.name === 'Eleições Municipais'">
+            <mat-accordion>
+              <mat-expansion-panel (opened)="accordionPrefeitos = true"
+              (closed)="accordionPrefeitos = false">
+                <mat-expansion-panel-header>
+                  <mat-panel-title>
+                    DEPUTADOS FEDERAIS
+                  </mat-panel-title> 
+                </mat-expansion-panel-header>
+                <div style="position: relative; width: 400px; height: 200px;" id="topDepFederal" name="topDepFederal"></div>
+                <mat-table #table [dataSource]="dataSourceDepFederal">
+                  <ng-container matColumnDef="index">
+                    <mat-header-cell *matHeaderCellDef> </mat-header-cell>
+                    <mat-cell *matCellDef="let element"> {{element.index}} </mat-cell>
+                  </ng-container>
+                  <ng-container matColumnDef="nameExibition">
+                    <mat-header-cell *matHeaderCellDef [ngClass]="'customWithClass'"> Nome </mat-header-cell>
+                    <mat-cell *matCellDef="let element" [ngClass]="'customWithClass'"> {{element.electionInformation[0].nameExibition}} </mat-cell>
+                  </ng-container>
+              
+                  <ng-container matColumnDef="politicalParty">
+                    <mat-header-cell *matHeaderCellDef> Partido </mat-header-cell>
+                    <mat-cell *matCellDef="let element"> {{element.electionInformation[0].politicalParty.initials}} </mat-cell>
+                  </ng-container>
+              
+                  <ng-container matColumnDef="elected">
+                    <mat-header-cell *matHeaderCellDef> Eleito </mat-header-cell>
+                    <mat-cell *matCellDef="let element"> {{element.electionInformation[0].situation === 'DEFERIDO' ? '✔' : '✗'}} </mat-cell>
+                  </ng-container>
+
+                  <ng-container matColumnDef="totalVotes">
+                    <mat-header-cell *matHeaderCellDef> Votos </mat-header-cell>
+                    <mat-cell *matCellDef="let element"> {{element.electionInformation[0].totalVotes || 0}} </mat-cell>
+                  </ng-container>
+
+                  <ng-container matColumnDef="perfil">
+                    <mat-header-cell *matHeaderCellDef> Perfil </mat-header-cell>
+                    <mat-cell *matCellDef="let element"> <a class="click-ver" (click)="carregarDadosPerfil(element.electionInformation[0].candidateNumber)">Ver</a> </mat-cell>
+                  </ng-container>
+
+                  <mat-header-row *matHeaderRowDef="displayedColumnsMayor"></mat-header-row>
+                  <mat-row *matRowDef="let row; columns: displayedColumnsMayor;"></mat-row>
+                </mat-table>
+              </mat-expansion-panel>
+              <mat-expansion-panel (opened)="accordionVereadores = true"
+              (closed)="accordionVereadores = false">
+                <mat-expansion-panel-header>
+                  <mat-panel-title>
+                    DEPUTADOS ESTADUAIS
+                  </mat-panel-title> 
+                </mat-expansion-panel-header>
+                <div style="position: relative; width: 400px; height: 200px;" id="topDepEstadual" name="topDepEstadual"></div>
+                <mat-table #table [dataSource]="dataSourceDepEstadual">
+                  <ng-container matColumnDef="index">
+                    <mat-header-cell *matHeaderCellDef> </mat-header-cell>
+                    <mat-cell *matCellDef="let element"> {{element.index}} </mat-cell>
+                  </ng-container>
+                  <ng-container matColumnDef="nameExibition">
+                    <mat-header-cell *matHeaderCellDef [ngClass]="'customWithClass'"> Nome </mat-header-cell>
+                    <mat-cell *matCellDef="let element" [ngClass]="'customWithClass'"> {{element.electionInformation[0].nameExibition}} </mat-cell>
+                  </ng-container>
+              
+                  <ng-container matColumnDef="politicalParty">
+                    <mat-header-cell *matHeaderCellDef> Partido </mat-header-cell>
+                    <mat-cell *matCellDef="let element"> {{element.electionInformation[0].politicalParty.initials}} </mat-cell>
+                  </ng-container>
+              
+                  <ng-container matColumnDef="elected">
+                    <mat-header-cell *matHeaderCellDef> Eleito </mat-header-cell>
+                    <mat-cell *matCellDef="let element"> {{element.electionInformation[0].situation === 'DEFERIDO' ? '✔' : '✗'}} </mat-cell>
+                  </ng-container>
+
+                  <ng-container matColumnDef="totalVotes">
+                    <mat-header-cell *matHeaderCellDef> Votos </mat-header-cell>
+                    <mat-cell *matCellDef="let element"> {{element.electionInformation[0].totalVotes || 0}} </mat-cell>
+                  </ng-container>
+
+                  <ng-container matColumnDef="perfil">
+                    <mat-header-cell *matHeaderCellDef> Perfil </mat-header-cell>
+                    <mat-cell *matCellDef="let element"> <a class="click-ver" (click)="carregarDadosPerfil(element.electionInformation[0].candidateNumber)">Ver</a> </mat-cell>
+                  </ng-container>
+
+                  <mat-header-row *matHeaderRowDef="displayedColumnsCandidate"></mat-header-row>
+                  <mat-row *matRowDef="let row; columns: displayedColumnsCandidate;"></mat-row>
+                </mat-table>
+
+              </mat-expansion-panel>
+            </mat-accordion>
+          </div>
         </div>
       </div>
     </div>

@@ -108,6 +108,7 @@ export class AppComponent {
     private temporaryService: TemporaryService) {}
 
   ngOnInit() {
+    console.log(google);
     this.yearGroup = [{name: 'Eleições Municipais', year: [2016]},
                 {name: 'Eleições Federais', year: [2014, 2018]}];
 
@@ -215,7 +216,9 @@ export class AppComponent {
     this.mapMarker(`Estado de ${state.name}`);
     this.stateSelected = state.name;
     this.localeSelected = state.name;
-
+    if (this.yearSelected.name !== 'Eleições Municipais') {
+      this.carregarCandidatosFederais();
+    }
     this.temporaryService.getCities({uf: state.state, anoEleicao: this.yearSelected.year, token: localStorage.getItem('tokenTemporary')})
       .subscribe(result => {
         this.formCity.enable();
@@ -267,8 +270,6 @@ export class AppComponent {
 
     if (this.yearSelected.name === 'Eleições Municipais') {
       this.carregarCandidatosMunicipais(city);
-    } else {
-      this.carregarCandidatosFederais();
     }
 
   }
@@ -309,23 +310,44 @@ export class AppComponent {
     this.mapMarker(`${bairro} ${this.formCity.value}`);
   }
 
-  carregarDadosPerfil(candidateNumber): void {
-    this.candidateService.getVotesByLocal({anoEleicao: this.yearSelected.year, codigoCidade: this.objCity.code, numeroCandidato: candidateNumber})
-    .subscribe(result => {
-      this.makeVotesSchoolsChart(result);
-      this.makeVotesSchoolsTable(result);
-      this.candidateService.getCandidateDetails({anoEleicao: this.yearSelected.year, codigoCidade: this.objCity.code, numeroCandidato: candidateNumber})
-      .subscribe(details => {
-        this.candidateDetail = details.candidate;
-        document.getElementsByClassName('detalhe')[0].classList.remove('fechado');
+  carregarDadosPerfil(candidateNumber, eleicoes): void {
+    if (eleicoes === 'Federais') {
+      this.candidateService.getVotesByLocal({anoEleicao: this.yearSelected.year, codigoCidade: this.objState.state, numeroCandidato: candidateNumber})
+      .subscribe(result => {
+        console.log(result);
+        this.makeVotesSchoolsChart(result);
+        this.makeVotesSchoolsTable(result);
+        this.candidateService.getCandidateDetails({anoEleicao: this.yearSelected.year, codigoCidade: this.objState.state, numeroCandidato: candidateNumber})
+        .subscribe(details => {
+          this.candidateDetail = details.candidate;
+          if (Array.isArray(this.candidateDetail.electionInformation)) {
+            this.candidateDetail.electionInformation = this.candidateDetail.electionInformation[0];
+          }
+          document.getElementsByClassName('detalhe')[0].classList.remove('fechado');
+        })
       })
-    })
+    }
+    
+    if (eleicoes === 'Municipais') {
+      this.candidateService.getVotesByLocal({anoEleicao: this.yearSelected.year, codigoCidade: this.objCity.code, numeroCandidato: candidateNumber})
+      .subscribe(result => {
+        this.makeVotesSchoolsChart(result);
+        this.makeVotesSchoolsTable(result);
+        this.candidateService.getCandidateDetails({anoEleicao: this.yearSelected.year, codigoCidade: this.objCity.code, numeroCandidato: candidateNumber})
+        .subscribe(details => {
+          this.candidateDetail = details.candidate;
+          document.getElementsByClassName('detalhe')[0].classList.remove('fechado');
+        })
+      })
+    }
   }
 
   sairDetalhes() {
     document.getElementsByClassName('detalhe')[0].classList.add('fechado');
     this.mapMarker(this.localeMapCurrent);
-    this.heatmap.setMap(null);
+    if (this.heatmap) {
+      this.heatmap.setMap(null);
+    }
   }
 
   private makeVotesMayorsTable(mayors): void {

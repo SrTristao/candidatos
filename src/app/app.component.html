@@ -133,8 +133,8 @@
           <div class="txt-boxes">Total de eleitores</div>
           <div class="num num-totaleleitores">{{totalElectorate}}</div>
         </div>
-        <div class="boxes boxesvotos" [hidden]="citySelected === ''">
-          <div [hidden]="yearSelected.name !== 'Eleições Municipais'">
+        <div class="boxes boxesvotos">
+          <div [hidden]="yearSelected.name !== 'Eleições Municipais' || citySelected === ''">
             <mat-accordion>
               <mat-expansion-panel (opened)="accordionPartidos = true"
               (closed)="accordionPartidos = false">
@@ -205,7 +205,7 @@
 
                   <ng-container matColumnDef="perfil">
                     <mat-header-cell *matHeaderCellDef> Perfil </mat-header-cell>
-                    <mat-cell *matCellDef="let element"> <a class="click-ver" (click)="carregarDadosPerfil(element.electionInformation.candidateNumber)">Ver</a> </mat-cell>
+                    <mat-cell *matCellDef="let element"> <a class="click-ver" (click)="carregarDadosPerfil(element.electionInformation.candidateNumber, 'Municipais')">Ver</a> </mat-cell>
                   </ng-container>
 
                   <mat-header-row *matHeaderRowDef="displayedColumnsMayor"></mat-header-row>
@@ -247,7 +247,7 @@
 
                   <ng-container matColumnDef="perfil">
                     <mat-header-cell *matHeaderCellDef> Perfil </mat-header-cell>
-                    <mat-cell *matCellDef="let element"> <a class="click-ver" (click)="carregarDadosPerfil(element.electionInformation.candidateNumber)">Ver</a> </mat-cell>
+                    <mat-cell *matCellDef="let element"> <a class="click-ver" (click)="carregarDadosPerfil(element.electionInformation.candidateNumber, 'Municipais')">Ver</a> </mat-cell>
                   </ng-container>
 
                   <mat-header-row *matHeaderRowDef="displayedColumnsCandidate"></mat-header-row>
@@ -258,7 +258,7 @@
             </mat-accordion>
           </div>
 
-          <div [hidden]="yearSelected.name === 'Eleições Municipais'">
+          <div [hidden]="yearSelected.name === 'Eleições Municipais' || stateSelected === 'BRASIL'">
             <mat-accordion>
               <mat-expansion-panel (opened)="accordionPrefeitos = true"
               (closed)="accordionPrefeitos = false">
@@ -295,7 +295,7 @@
 
                   <ng-container matColumnDef="perfil">
                     <mat-header-cell *matHeaderCellDef> Perfil </mat-header-cell>
-                    <mat-cell *matCellDef="let element"> <a class="click-ver" (click)="carregarDadosPerfil(element.electionInformation[0].candidateNumber)">Ver</a> </mat-cell>
+                    <mat-cell *matCellDef="let element"> <a class="click-ver" (click)="carregarDadosPerfil(element.electionInformation[0].candidateNumber, 'Federais')">Ver</a> </mat-cell>
                   </ng-container>
 
                   <mat-header-row *matHeaderRowDef="displayedColumnsMayor"></mat-header-row>
@@ -337,7 +337,7 @@
 
                   <ng-container matColumnDef="perfil">
                     <mat-header-cell *matHeaderCellDef> Perfil </mat-header-cell>
-                    <mat-cell *matCellDef="let element"> <a class="click-ver" (click)="carregarDadosPerfil(element.electionInformation[0].candidateNumber)">Ver</a> </mat-cell>
+                    <mat-cell *matCellDef="let element"> <a class="click-ver" (click)="carregarDadosPerfil(element.electionInformation[0].candidateNumber, 'Federais')">Ver</a> </mat-cell>
                   </ng-container>
 
                   <mat-header-row *matHeaderRowDef="displayedColumnsCandidate"></mat-header-row>
